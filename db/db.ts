@@ -6,8 +6,8 @@ Initializes the database connection and schema for the app.
 
 import { profilesTable, todosTable } from "@/db/schema"
 import { config } from "dotenv"
-import { drizzle } from "drizzle-orm/postgres-js"
-import postgres from "postgres"
+import { drizzle } from "drizzle-orm/node-postgres"
+import { Pool } from "pg"
 
 config({ path: ".env.local" })
 
@@ -16,6 +16,9 @@ const schema = {
   todos: todosTable
 }
 
-const client = postgres(process.env.DATABASE_URL!)
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false } // ensures SSL
+})
 
-export const db = drizzle(client, { schema })
+export const db = drizzle(pool, { schema })
