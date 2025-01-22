@@ -23,11 +23,22 @@ export async function POST(
 
     const supabase = createRouteHandlerClient({ cookies })
 
+    // First get the worker's ID from the workers table using clerk_id
+    const { data: worker, error: workerError } = await supabase
+      .from("workers")
+      .select("id")
+      .eq("clerk_id", userId)
+      .single()
+
+    if (workerError || !worker) {
+      throw new Error("Worker not found")
+    }
+
     const { error } = await supabase
       .from("portraits")
       .update({
         status: "C",
-        worker_id: userId,
+        worker_id: worker.id,
         image_key: midjourneyUrl,
         completed_at: new Date().toISOString()
       })

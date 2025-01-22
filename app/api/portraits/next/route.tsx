@@ -4,7 +4,16 @@ import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
 interface Portrait {
-  id: number
+  id: bigint
+  book_id: bigint
+  style_id: bigint
+  worker_id: bigint | null
+  status: string
+  image_key: string | null
+  proof_status: string | null
+  proof_feedback: string | null
+  completed_at: string | null
+  created_at: string
   recipients: {
     photo_key: string
     age: number
@@ -67,7 +76,7 @@ export async function GET() {
     }
 
     const response: PortraitResponse = {
-      id: portrait.id,
+      id: Number(portrait.id),
       reference_photo_url: portrait.recipients.photo_key,
       recipient_age: portrait.recipients.age,
       recipient_gender: portrait.recipients.gender,
