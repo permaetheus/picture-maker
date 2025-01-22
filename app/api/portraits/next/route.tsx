@@ -14,10 +14,13 @@ interface Portrait {
   proof_feedback: string | null
   completed_at: string | null
   created_at: string
-  recipients: {
-    photo_key: string
-    age: number
-    gender: string
+  books: {
+    recipient_id: bigint
+    recipients: {
+      photo_key: string
+      age: number
+      gender: string
+    }
   }
   artist_styles: {
     prompt_template: string
@@ -42,17 +45,21 @@ export async function GET() {
   }
 
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
 
     const { data: portrait, error } = await supabase
       .from("portraits")
       .select(
         `
         *,
-        recipients:books!inner(
-          photo_key,
-          age,
-          gender
+        books!inner(
+          recipient_id,
+          recipients!inner(
+            photo_key,
+            age,
+            gender
+          )
         ),
         artist_styles!inner(
           prompt_template,
@@ -77,9 +84,9 @@ export async function GET() {
 
     const response: PortraitResponse = {
       id: Number(portrait.id),
-      reference_photo_url: portrait.recipients.photo_key,
-      recipient_age: portrait.recipients.age,
-      recipient_gender: portrait.recipients.gender,
+      reference_photo_url: portrait.books.recipients.photo_key,
+      recipient_age: portrait.books.recipients.age,
+      recipient_gender: portrait.books.recipients.gender,
       prompt_template: portrait.artist_styles.prompt_template,
       style_name: portrait.artist_styles.name
     }
