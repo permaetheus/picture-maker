@@ -16,19 +16,17 @@ export async function GET(request: NextRequest) {
     .from("portraits")
     .select(
       `
-      id,
       status,
-      proof_status,
-      image_key,
       created_at,
-      recipients:book_id (
-        photo_key,
-        age,
-        gender
+      books!book_id (
+        recipients!recipient_id (
+          photo_key,
+          age,
+          gender
+        )
       ),
       artist_styles:style_id (
-        prompt_template,
-        name
+        prompt_template
       )
     `
     )
