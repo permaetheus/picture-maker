@@ -31,25 +31,28 @@ export default function WorkerClientPage({
     return <div>Missing required data</div>
   }
 
-  const {
-    id,
-    books: {
-      recipients: {
-        photo_key: reference_photo_url,
-        age: recipient_age,
-        gender: recipient_gender
-      }
-    },
-    artist_styles: { prompt_template }
-  } = data
+  // Safely parse arrays and pick first child
+  const firstBook = Array.isArray(data?.books) ? data.books[0] : data?.books
+  const firstRecipient =
+    firstBook?.recipients && Array.isArray(firstBook.recipients)
+      ? firstBook.recipients[0]
+      : firstBook?.recipients
 
-  const processedText = data.artist_styles.prompt_template
-    ?.replace("{age}", data.books.recipients.age)
-    ?.replace("{gender}", data.books.recipients.gender)
+  const firstStyle = Array.isArray(data?.artist_styles)
+    ? data.artist_styles[0]
+    : data?.artist_styles
+
+  if (!firstStyle?.prompt_template || !firstRecipient?.photo_key) {
+    return <div>Missing required data</div>
+  }
+
+  const processedText = firstStyle.prompt_template
+    ?.replace("{age}", firstRecipient.age)
+    ?.replace("{gender}", firstRecipient.gender)
 
   async function handleSubmit() {
     if (!midjourneyUrl) return
-    await fetch(`/api/portraits/${id}/submit`, {
+    await fetch(`/api/portraits/${data.id}/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ midjourneyUrl })
@@ -65,9 +68,9 @@ export default function WorkerClientPage({
           <CardTitle>Reference Photo</CardTitle>
         </CardHeader>
         <CardContent>
-          {reference_photo_url ? (
+          {firstRecipient?.photo_key ? (
             <img
-              src={reference_photo_url}
+              src={firstRecipient.photo_key}
               alt="Reference"
               className="max-w-md"
             />
@@ -82,7 +85,7 @@ export default function WorkerClientPage({
           <CardTitle>Prompt Template</CardTitle>
         </CardHeader>
         <CardContent>
-          <pre>{prompt_template}</pre>
+          <pre>{firstStyle?.prompt_template}</pre>
         </CardContent>
       </Card>
 

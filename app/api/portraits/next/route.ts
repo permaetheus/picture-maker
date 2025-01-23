@@ -48,14 +48,25 @@ export async function GET(request: NextRequest) {
   }
 
   console.log("Raw data:", data)
+
+  const firstBook = Array.isArray(data.books) ? data.books[0] : data.books
+  const firstRecipient =
+    firstBook?.recipients && Array.isArray(firstBook.recipients)
+      ? firstBook.recipients[0]
+      : firstBook?.recipients
+
+  const firstStyle = Array.isArray(data.artist_styles)
+    ? data.artist_styles[0]
+    : data.artist_styles
+
   const transformedData = {
     id: data.id,
     status: data.status,
     created_at: data.created_at,
-    prompt_template: data.artist_styles.prompt_template,
-    recipient_age: data.books.recipients.age,
-    recipient_gender: data.books.recipients.gender,
-    reference_photo_url: data.books.recipients.photo_key
+    prompt_template: firstStyle?.prompt_template,
+    recipient_age: firstRecipient?.age,
+    recipient_gender: firstRecipient?.gender,
+    reference_photo_url: firstRecipient?.photo_key
   }
   console.log("Transformed data:", transformedData)
 
