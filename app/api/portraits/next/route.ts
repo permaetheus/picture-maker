@@ -50,10 +50,8 @@ export async function GET(request: NextRequest) {
   console.log("Raw data:", data)
 
   const firstBook = Array.isArray(data.books) ? data.books[0] : data.books
-  const firstRecipient =
-    firstBook?.recipients && Array.isArray(firstBook.recipients)
-      ? firstBook.recipients[0]
-      : firstBook?.recipients
+  const recipients = firstBook?.recipients
+  const firstRecipient = Array.isArray(recipients) ? recipients[0] : recipients
 
   const firstStyle = Array.isArray(data.artist_styles)
     ? data.artist_styles[0]
