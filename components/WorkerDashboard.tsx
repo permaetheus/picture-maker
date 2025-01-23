@@ -63,12 +63,16 @@ export default function WorkerDashboard() {
         body: JSON.stringify({ midjourneyUrl })
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Failed to submit portrait")
+        throw new Error(data.message || "Failed to submit portrait")
       }
 
-      // Fetch next portrait after successful submission
-      await fetchNextPortrait()
+      if (data.success) {
+        setMidjourneyUrl("") // Clear the input after successful submission
+        await fetchNextPortrait() // Fetch next portrait
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit portrait")
     } finally {
