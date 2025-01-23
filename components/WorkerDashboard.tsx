@@ -27,20 +27,18 @@ export default function WorkerDashboard() {
     try {
       setLoading(true)
       const response = await fetch("/api/portraits/next")
+      const result = await response.json()
+      console.log("API response:", result)
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          setPortrait(null)
-          return
-        }
-        throw new Error("Failed to fetch portrait")
+      if (!result.isSuccess || !result.data) {
+        setPortrait(null)
+        return
       }
 
-      const data = await response.json()
-      setPortrait(data)
-      setMidjourneyUrl("")
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch portrait")
+      setPortrait(result.data)
+    } catch (error) {
+      setError("Failed to fetch portrait")
+      console.error(error)
     } finally {
       setLoading(false)
     }

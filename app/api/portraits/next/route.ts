@@ -1,7 +1,4 @@
-"use server"
-
 import { NextRequest, NextResponse } from "next/server"
-import { getNextPortraitAction } from "@/actions/db/portraits-actions"
 import { getAuth } from "@clerk/nextjs/server"
 import { supabase } from "@/lib/supabase"
 
@@ -11,7 +8,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  // Select columns from portraits, and join to recipients (book_id) & artist_styles (style_id).
   const { data, error } = await supabase
     .from("portraits")
     .select(
@@ -37,8 +33,6 @@ export async function GET(request: NextRequest) {
     .limit(1)
     .single()
 
-  console.log("Portraits query result:", { data, error })
-
   if (error) {
     return NextResponse.json(
       { isSuccess: false, error: error.message },
@@ -53,9 +47,20 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // Return the single portrait object
+  console.log("Raw data:", data)
+  const transformedData = {
+    id: data.id,
+    status: data.status,
+    created_at: data.created_at,
+    prompt_template: data.artist_styles.prompt_template,
+    recipient_age: data.books.recipients.age,
+    recipient_gender: data.books.recipients.gender,
+    reference_photo_url: data.books.recipients.photo_key
+  }
+  console.log("Transformed data:", transformedData)
+
   return NextResponse.json({
     isSuccess: true,
-    portrait: data
+    data: transformedData
   })
 }
