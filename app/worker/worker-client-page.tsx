@@ -27,18 +27,25 @@ export default function WorkerClientPage({
     return <div>{initialPortraitResult.message}</div>
   }
 
+  if (!data || !data.artist_styles || !data.books?.recipients) {
+    return <div>Missing required data</div>
+  }
+
   const {
     id,
-    reference_photo_url,
-    recipient_age,
-    recipient_gender,
-    prompt_template,
-    style_name
+    books: {
+      recipients: {
+        photo_key: reference_photo_url,
+        age: recipient_age,
+        gender: recipient_gender
+      }
+    },
+    artist_styles: { prompt_template }
   } = data
 
-  const processedText = prompt_template
-    ?.replace("{age}", recipient_age)
-    ?.replace("{gender}", recipient_gender)
+  const processedText = data.artist_styles.prompt_template
+    ?.replace("{age}", data.books.recipients.age)
+    ?.replace("{gender}", data.books.recipients.gender)
 
   async function handleSubmit() {
     if (!midjourneyUrl) return

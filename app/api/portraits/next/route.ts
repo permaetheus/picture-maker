@@ -16,10 +16,11 @@ export async function GET(request: NextRequest) {
     .from("portraits")
     .select(
       `
+      id,
       status,
       created_at,
-      books!book_id (
-        recipients!recipient_id (
+      books:book_id (
+        recipients:recipient_id (
           photo_key,
           age,
           gender
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
     .is("worker_id", null)
     .order("created_at", { ascending: true })
     .limit(1)
+    .single()
 
   console.log("Portraits query result:", { data, error })
 
@@ -44,7 +46,7 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  if (!data || data.length === 0) {
+  if (!data) {
     return NextResponse.json(
       { isSuccess: false, message: "No pending portraits" },
       { status: 404 }
@@ -54,6 +56,6 @@ export async function GET(request: NextRequest) {
   // Return the single portrait object
   return NextResponse.json({
     isSuccess: true,
-    portrait: data[0]
+    portrait: data
   })
 }
