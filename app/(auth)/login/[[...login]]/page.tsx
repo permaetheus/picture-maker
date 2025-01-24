@@ -14,9 +14,6 @@ export default function LoginPage() {
   const { theme } = useTheme()
 
   return (
-    <SignIn
-      forceRedirectUrl="/todo"
-      appearance={{ baseTheme: theme === "dark" ? dark : undefined }}
-    />
+    <SignIn appearance={{ baseTheme: theme === "dark" ? dark : undefined }} />
   )
 }

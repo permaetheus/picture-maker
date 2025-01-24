@@ -25,8 +25,6 @@ const navLinks = [
   { href: "/contact", label: "Contact" }
 ]
 
-const signedInLinks = [{ href: "/todo", label: "Todo" }]
-
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -72,7 +70,7 @@ export default function Header() {
           ))}
 
           <SignedIn>
-            {signedInLinks.map(link => (
+            {/* signedInLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -80,7 +78,7 @@ export default function Header() {
               >
                 {link.label}
               </Link>
-            ))}
+            )) */}
           </SignedIn>
         </nav>
 
@@ -142,7 +140,7 @@ export default function Header() {
               </li>
             ))}
             <SignedIn>
-              {signedInLinks.map(link => (
+              {/* signedInLinks.map(link => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -152,7 +150,7 @@ export default function Header() {
                     {link.label}
                   </Link>
                 </li>
-              ))}
+              )) */}
             </SignedIn>
           </ul>
         </nav>
