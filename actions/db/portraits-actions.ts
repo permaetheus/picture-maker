@@ -41,18 +41,6 @@ export async function submitPortraitAction(
   midjourneyUrl: string
 ): Promise<ActionState<void>> {
   try {
-    // Get the book_id first
-    const { data: portrait, error: portraitError } = await supabase
-      .from("portraits")
-      .select("book_id")
-      .eq("id", portraitId)
-      .single()
-
-    if (portraitError) {
-      return { isSuccess: false, message: portraitError.message }
-    }
-
-    // Update the current portrait
     const { error } = await supabase
       .from("portraits")
       .update({
@@ -65,32 +53,6 @@ export async function submitPortraitAction(
 
     if (error) {
       return { isSuccess: false, message: error.message }
-    }
-
-    // Check if all portraits for this book are completed
-    const { data: portraits, error: checkError } = await supabase
-      .from("portraits")
-      .select("status")
-      .eq("book_id", portrait.book_id)
-
-    if (checkError) {
-      return { isSuccess: false, message: checkError.message }
-    }
-
-    const allCompleted = portraits.every(p => p.status === "C")
-
-    if (allCompleted) {
-      // Fire and forget - doesn't block or affect worker
-      fetch("/api/proofs/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ bookId: portrait.book_id })
-      }).catch(error => {
-        // Just log error, don't affect worker flow
-        console.error("Failed to trigger proof generation:", error)
-      })
     }
 
     return {
