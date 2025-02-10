@@ -9,6 +9,14 @@ export async function uploadImageAction(
   portraitId: number
 ): Promise<ActionState<string>> {
   try {
+    // Validate PNG format
+    if (!base64Image.startsWith('data:image/png;base64,')) {
+      return {
+        isSuccess: false,
+        message: 'Only PNG images are allowed'
+      }
+    }
+
     // Get worker ID first
     const { userId } = await auth()
     const { data: worker } = await supabase
@@ -44,8 +52,8 @@ export async function uploadImageAction(
     // Extract order number from nested data
     const shopifyOrderNumber = portraitData.books?.order_items?.[0]?.order?.shopify_order_number || 'unknown'
     
-    // Update filename to include worker.id
-    const filename = `${shopifyOrderNumber}_${portraitData.book_id}_${portraitData.id}_${worker?.id || 'unknown'}_${Date.now()}.${base64Image.split('/')[1].split(';')[0]}`
+    // Force .png extension regardless of input
+    const filename = `${shopifyOrderNumber}_${portraitData.book_id}_${portraitData.id}_${worker?.id || 'unknown'}_${Date.now()}.png`
 
     // Convert base64 to blob
     const base64Response = await fetch(base64Image)
