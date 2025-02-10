@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -59,32 +59,44 @@ export default function UploadPortraitCard({
     reader.readAsDataURL(file)
   }
 
-  const handlePaste = async (event: React.ClipboardEvent) => {
-    const items = event.clipboardData?.items
-    const imageItem = Array.from(items || []).find(
-      item => item.type.indexOf("image") !== -1
-    )
-
-    if (imageItem) {
-      const file = imageItem.getAsFile()
-      if (!file) return
-
-      if (file.type !== "image/png") {
-        toast({
-          variant: "destructive",
-          title: "Invalid file type",
-          description: "Please paste a PNG image only."
-        })
-        return
-      }
-
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImage(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+  const processPastedImage = (file: File) => {
+    if (file.type !== "image/png") {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please paste a PNG image only."
+      })
+      return
     }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImage(reader.result as string)
+    }
+    reader.readAsDataURL(file)
   }
+
+  useEffect(() => {
+    const handleGlobalPaste = (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items
+      const imageItem = Array.from(items || []).find(
+        item => item.type.indexOf("image") !== -1
+      )
+
+      if (imageItem) {
+        const file = imageItem.getAsFile()
+        if (file) {
+          processPastedImage(file)
+        }
+      }
+    }
+
+    window.addEventListener("paste", handleGlobalPaste)
+
+    return () => {
+      window.removeEventListener("paste", handleGlobalPaste)
+    }
+  }, [])
 
   const handleSubmit = async () => {
     if (!image || !onImageUpload) return
@@ -118,10 +130,7 @@ export default function UploadPortraitCard({
       </CardHeader>
 
       <CardContent>
-        <div
-          className="rounded-lg border-2 border-dashed border-gray-300 p-4 text-center"
-          onPaste={handlePaste}
-        >
+        <div className="rounded-lg border-2 border-dashed border-gray-300 p-4 text-center">
           <Label htmlFor="image-upload" className="cursor-pointer">
             {image ? (
               <Image
@@ -136,7 +145,7 @@ export default function UploadPortraitCard({
                 <Upload className="mx-auto size-8 text-gray-400" />
                 <p>Drag and drop an image here, or click to select</p>
                 <p className="text-sm text-gray-500">
-                  You can also paste an image
+                  You can paste an image anywhere on the page (Ctrl+V)
                 </p>
               </div>
             )}
@@ -144,7 +153,7 @@ export default function UploadPortraitCard({
           <Input
             id="image-upload"
             type="file"
-            accept="image/*"
+            accept="image/png"
             className="hidden"
             onChange={handleImageUpload}
             ref={fileInputRef}
