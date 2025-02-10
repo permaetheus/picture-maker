@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 
 import ReferencePhotoCard from "@/components/worker-dashboard/reference-photo-card"
 import StyleCard from "@/components/worker-dashboard/style-card"
-import SubmitPortraitCard from "@/components/worker-dashboard/submit-portrait-card"
+import UploadPortraitCard from "@/components/worker-dashboard/upload-portrait-card"
 
 import { Portrait } from "@/types"
 
@@ -14,7 +14,6 @@ export default function WorkerDashboard() {
   const [portrait, setPortrait] = useState<Portrait | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [midjourneyUrl, setMidjourneyUrl] = useState("")
   const [submitting, setSubmitting] = useState(false)
 
   // Fetch next available portrait
@@ -40,22 +39,17 @@ export default function WorkerDashboard() {
   }
 
   // Submit completed portrait
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!midjourneyUrl.trim()) {
-      setError("Please enter a Midjourney URL")
-      return
-    }
+  const handleImageUpload = async (imageUrl: string) => {
+    if (!portrait?.id) return
 
     try {
       setSubmitting(true)
-      const response = await fetch(`/api/portraits/${portrait?.id}/submit`, {
+      const response = await fetch(`/api/portraits/${portrait.id}/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ midjourneyUrl })
+        body: JSON.stringify({ midjourneyUrl: imageUrl })
       })
 
       const data = await response.json()
@@ -65,11 +59,11 @@ export default function WorkerDashboard() {
       }
 
       if (data.success) {
-        setMidjourneyUrl("") // Clear the input after successful submission
         await fetchNextPortrait() // Fetch next portrait
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit portrait")
+      throw err // Re-throw to be handled by the UploadPortraitCard
     } finally {
       setSubmitting(false)
     }
@@ -132,12 +126,7 @@ export default function WorkerDashboard() {
         onCopy={copyPrompt}
       />
 
-      <SubmitPortraitCard
-        midjourneyUrl={midjourneyUrl}
-        onMidjourneyUrlChange={val => setMidjourneyUrl(val)}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-      />
+      <UploadPortraitCard onImageUpload={handleImageUpload} />
     </div>
   )
 }
