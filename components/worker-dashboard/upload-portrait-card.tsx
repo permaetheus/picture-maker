@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Upload, X } from "lucide-react"
 import Image from "next/image"
 import { uploadImageAction } from "@/actions/upload-actions"
+import { useToast } from "@/components/ui/use-toast"
 
 interface UploadPortraitCardProps {
   onImageUpload?: (imageUrl: string) => Promise<void>
@@ -29,12 +30,27 @@ export default function UploadPortraitCard({
   const [image, setImage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { toast } = useToast()
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0]
     if (!file) return
+
+    console.log("File type:", file.type)
+
+    if (file.type !== "image/png") {
+      toast({
+        variant: "destructive",
+        title: "Wrong file type",
+        description: "Please upload a PNG file only"
+      })
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+      return
+    }
 
     const reader = new FileReader()
     reader.onloadend = () => {
@@ -52,6 +68,15 @@ export default function UploadPortraitCard({
     if (imageItem) {
       const file = imageItem.getAsFile()
       if (!file) return
+
+      if (file.type !== "image/png") {
+        toast({
+          variant: "destructive",
+          title: "Invalid file type",
+          description: "Please paste a PNG image only."
+        })
+        return
+      }
 
       const reader = new FileReader()
       reader.onloadend = () => {

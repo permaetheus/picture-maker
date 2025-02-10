@@ -7,6 +7,7 @@ import {
 } from "@clerk/nextjs"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -36,6 +37,7 @@ export default function RootLayout({
             </div>
           </header>
           <main className="container mx-auto px-4 py-8">{children}</main>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>
