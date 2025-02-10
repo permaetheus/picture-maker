@@ -15,6 +15,7 @@ export default function WorkerDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [userId, setUserId] = useState<string>("")
 
   // Fetch next available portrait
   const fetchNextPortrait = async () => {
@@ -110,7 +111,12 @@ export default function WorkerDashboard() {
     .replace("{gender}", portrait.recipient_gender)
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="space-y-8">
+      <UploadPortraitCard
+        onImageUpload={handleImageUpload}
+        userId={userId}
+        portraitId={portrait?.id || 0}
+      />
       {error && (
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
@@ -125,8 +131,6 @@ export default function WorkerDashboard() {
         processedPrompt={processedPrompt}
         onCopy={copyPrompt}
       />
-
-      <UploadPortraitCard onImageUpload={handleImageUpload} />
     </div>
   )
 }

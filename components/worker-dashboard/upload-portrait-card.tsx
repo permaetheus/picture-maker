@@ -11,57 +11,63 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Upload, X } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import Image from "next/image"
 import { uploadImageAction } from "@/actions/upload-actions"
 
 interface UploadPortraitCardProps {
   onImageUpload?: (imageUrl: string) => Promise<void>
+  userId: string
+  portraitId: number
 }
 
 export default function UploadPortraitCard({
-  onImageUpload
+  onImageUpload,
+  userId,
+  portraitId
 }: UploadPortraitCardProps) {
   const [image, setImage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = e => {
-        setImage(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImage(reader.result as string)
     }
+    reader.readAsDataURL(file)
   }
 
-  const handlePaste = (event: React.ClipboardEvent) => {
+  const handlePaste = async (event: React.ClipboardEvent) => {
     const items = event.clipboardData?.items
-    if (items) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf("image") !== -1) {
-          const blob = items[i].getAsFile()
-          if (blob) {
-            const reader = new FileReader()
-            reader.onload = e => {
-              setImage(e.target?.result as string)
-            }
-            reader.readAsDataURL(blob)
-          }
-        }
+    const imageItem = Array.from(items || []).find(
+      item => item.type.indexOf("image") !== -1
+    )
+
+    if (imageItem) {
+      const file = imageItem.getAsFile()
+      if (!file) return
+
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImage(reader.result as string)
       }
+      reader.readAsDataURL(file)
     }
   }
 
   const handleSubmit = async () => {
     if (!image || !onImageUpload) return
 
-    setIsLoading(true)
     try {
-      const result = await uploadImageAction(image)
-      if (!result.isSuccess) {
+      setIsLoading(true)
+      const result = await uploadImageAction(image, portraitId)
+      if (!result.isSuccess || !result.data) {
         throw new Error(result.message)
       }
       await onImageUpload(result.data)
@@ -131,17 +137,7 @@ export default function UploadPortraitCard({
           Clear
         </Button>
         <Button onClick={handleSubmit} disabled={!image || isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Uploading...
-            </>
-          ) : (
-            <>
-              <Upload className="mr-2 size-4" />
-              Upload
-            </>
-          )}
+          {isLoading ? "Uploading..." : "Upload"}
         </Button>
       </CardFooter>
     </Card>
