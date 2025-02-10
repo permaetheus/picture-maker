@@ -155,13 +155,17 @@ export default function UploadPortraitCard({
       <CardFooter className="flex justify-between">
         <Button
           onClick={handleClear}
-          variant="outline"
+          variant={image && !isLoading ? "destructive" : "outline"}
           disabled={!image || isLoading}
         >
           <X className="mr-2 size-4" />
           Clear
         </Button>
-        <Button onClick={handleSubmit} disabled={!image || isLoading}>
+        <Button
+          onClick={handleSubmit}
+          variant={image && !isLoading ? "success" : "default"}
+          disabled={!image || isLoading}
+        >
           {isLoading ? "Uploading..." : "Upload"}
         </Button>
       </CardFooter>

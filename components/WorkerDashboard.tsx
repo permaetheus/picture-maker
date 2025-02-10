@@ -88,21 +88,25 @@ export default function WorkerDashboard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="size-8 animate-spin" />
+      <div className="mx-auto max-w-[800px] px-4">
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="size-8 animate-spin" />
+        </div>
       </div>
     )
   }
 
   if (!portrait) {
     return (
-      <Alert className="mx-auto mt-8 max-w-2xl">
-        <AlertTitle>No Portraits Available</AlertTitle>
-        <AlertDescription>
-          There are currently no pending portraits to work on. Please check back
-          later.
-        </AlertDescription>
-      </Alert>
+      <div className="mx-auto max-w-[800px] px-4">
+        <Alert className="mt-8">
+          <AlertTitle>No Portraits Available</AlertTitle>
+          <AlertDescription>
+            There are currently no pending portraits to work on. Please check
+            back later.
+          </AlertDescription>
+        </Alert>
+      </div>
     )
   }
 
@@ -111,26 +115,28 @@ export default function WorkerDashboard() {
     .replace("{gender}", portrait.recipient_gender)
 
   return (
-    <div className="space-y-8">
-      <UploadPortraitCard
-        onImageUpload={handleImageUpload}
-        userId={userId}
-        portraitId={portrait?.id || 0}
-      />
-      {error && (
-        <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+    <div className="mx-auto max-w-[800px] px-4">
+      <div className="space-y-8">
+        <UploadPortraitCard
+          onImageUpload={handleImageUpload}
+          userId={userId}
+          portraitId={portrait?.id || 0}
+        />
+        {error && (
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-      <ReferencePhotoCard referencePhotoUrl={portrait.reference_photo_url} />
+        <ReferencePhotoCard referencePhotoUrl={portrait.reference_photo_url} />
 
-      <StyleCard
-        styleName={portrait.style_name}
-        processedPrompt={processedPrompt}
-        onCopy={copyPrompt}
-      />
+        <StyleCard
+          styleName={portrait.style_name}
+          processedPrompt={processedPrompt}
+          onCopy={copyPrompt}
+        />
+      </div>
     </div>
   )
 }
