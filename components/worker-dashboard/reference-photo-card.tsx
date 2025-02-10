@@ -12,7 +12,7 @@ export default function ReferencePhotoCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Reference Photo</CardTitle>
+        <CardTitle>Character Reference Photo</CardTitle>
       </CardHeader>
       <CardContent>
         <img
