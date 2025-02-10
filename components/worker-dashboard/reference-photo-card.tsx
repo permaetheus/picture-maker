@@ -18,7 +18,7 @@ export default function ReferencePhotoCard({
         <img
           src={referencePhotoUrl}
           alt="Reference"
-          className="h-auto max-w-full rounded-lg"
+          className="h-auto max-h-[200px] max-w-full rounded-lg object-contain"
         />
       </CardContent>
     </Card>

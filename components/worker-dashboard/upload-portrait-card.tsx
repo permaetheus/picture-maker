@@ -126,7 +126,7 @@ export default function UploadPortraitCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upload Reference Photo</CardTitle>
+        <CardTitle>Upload Generated Image</CardTitle>
       </CardHeader>
 
       <CardContent>
