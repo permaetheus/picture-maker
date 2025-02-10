@@ -1,19 +1,14 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Copy, Send } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
-interface Portrait {
-  id: number
-  reference_photo_url: string
-  recipient_age: number
-  recipient_gender: string
-  prompt_template: string
-  style_name: string
-}
+import ReferencePhotoCard from "@/components/worker-dashboard/reference-photo-card"
+import StyleCard from "@/components/worker-dashboard/style-card"
+import SubmitPortraitCard from "@/components/worker-dashboard/submit-portrait-card"
+
+import { Portrait } from "@/types"
 
 export default function WorkerDashboard() {
   const [portrait, setPortrait] = useState<Portrait | null>(null)
@@ -116,6 +111,10 @@ export default function WorkerDashboard() {
     )
   }
 
+  const processedPrompt = portrait.prompt_template
+    .replace("{age}", portrait.recipient_age.toString())
+    .replace("{gender}", portrait.recipient_gender)
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {error && (
@@ -125,72 +124,20 @@ export default function WorkerDashboard() {
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Reference Photo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <img
-            src={portrait.reference_photo_url}
-            alt="Reference"
-            className="h-auto max-w-full rounded-lg"
-          />
-        </CardContent>
-      </Card>
+      <ReferencePhotoCard referencePhotoUrl={portrait.reference_photo_url} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Style: {portrait.style_name}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg bg-gray-50 p-4">
-            <pre className="whitespace-pre-wrap">
-              {portrait.prompt_template
-                .replace("{age}", portrait.recipient_age.toString())
-                .replace("{gender}", portrait.recipient_gender)}
-            </pre>
-          </div>
-          <Button onClick={copyPrompt} className="w-full sm:w-auto">
-            <Copy className="mr-2 size-4" />
-            Copy Prompt
-          </Button>
-        </CardContent>
-      </Card>
+      <StyleCard
+        styleName={portrait.style_name}
+        processedPrompt={processedPrompt}
+        onCopy={copyPrompt}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Submit Portrait</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="url"
-              value={midjourneyUrl}
-              onChange={e => setMidjourneyUrl(e.target.value)}
-              placeholder="Enter Midjourney URL"
-              className="w-full rounded-lg border p-2"
-              required
-            />
-            <Button
-              type="submit"
-              disabled={submitting}
-              className="w-full sm:w-auto"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 size-4" />
-                  Submit Portrait
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <SubmitPortraitCard
+        midjourneyUrl={midjourneyUrl}
+        onMidjourneyUrlChange={val => setMidjourneyUrl(val)}
+        onSubmit={handleSubmit}
+        submitting={submitting}
+      />
     </div>
   )
 }
