@@ -21,7 +21,7 @@ export default defineComponent({
           "Prefer": "return=representation"
         },
         params: {
-          select: 'shopify_orders_sb_id,shopify_order_number,shopify_order_id,status,metadata,customer_email,created_at,order_items(book_id,books(status))',
+          select: '*,order_items(*,books(id,status,guts_pdf_key,cover_pdf_key)),shipping_addresses!inner(id,name,address_line1,address_line2,city,state,postal_code,country_code)',
           status: 'eq.N',
           order: 'created_at.desc'
         }
@@ -41,9 +41,22 @@ export default defineComponent({
       // Log each order's books status
       orders.forEach((order) => {
         console.log(`\nOrder ${order.shopify_order_number}:`)
+        
+        const addressDetails = {
+          name: order.shipping_addresses.name,
+          address: order.shipping_addresses.address_line1 + 
+            (order.shipping_addresses.address_line2 ? `, ${order.shipping_addresses.address_line2}` : ''),
+          city: order.shipping_addresses.city,
+          state: order.shipping_addresses.state,
+          postal: order.shipping_addresses.postal_code,
+          country: order.shipping_addresses.country_code
+        }
+        
+        console.log('Shipping to:', addressDetails)
         console.log('Order items count:', order.order_items?.length || 0)
         order.order_items?.forEach((item) => {
-          console.log(`- Book ${item.book_id} status:`, item.books?.status)
+          console.log(`- Book ${item.book_id} status: ${item.books?.status}, quantity: ${item.quantity}`)
+          console.log(`  PDFs - Guts: ${item.books?.guts_pdf_key || 'N/A'}, Cover: ${item.books?.cover_pdf_key || 'N/A'}`)
         })
       })
 
