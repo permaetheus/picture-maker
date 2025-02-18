@@ -95,32 +95,54 @@ export default defineComponent({
           })
 
           // Check for various error conditions
-          if (!response.data) {
+          if (!response || !response.data) {
             throw new Error('Empty response from API')
+          }
+
+          // Check for API error responses
+          if (response.status !== 200) {
+            throw new Error(`API returned status ${response.status}: ${response.data?.error || 'Unknown error'}`)
           }
 
           if (response.data.error) {
             throw new Error(`API Error: ${response.data.error}`)
           }
 
+          // Check for missing output URL/ID
           if (!response.data.outputUrl || !response.data.outputId) {
-            throw new Error(`Invalid response format: ${JSON.stringify(response.data)}`)
+            throw new Error('API response missing required output information')
           }
 
           console.log('Cover PDF generation completed successfully')
           return response.data
 
         } catch (error) {
-          console.error(`Attempt ${attempts} failed:`, error.response?.data || error)
-          
-          if (attempts === MAX_RETRIES) {
-            throw new Error(`Failed to generate cover PDF after ${MAX_RETRIES} attempts: ${error.message}`)
+          // Log the full error for debugging
+          console.error('PDF processing error:', error)
+
+          // Handle specific axios errors
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            const errorMessage = error.response.data?.error || error.response.statusText
+            if (error.response.status === 401) {
+              throw new Error(`Authentication failed: ${errorMessage}`)
+            } else if (error.response.status === 400) {
+              throw new Error(`Invalid request: ${errorMessage}`)
+            } else {
+              throw new Error(`API error (${error.response.status}): ${errorMessage}`)
+            }
+          } else if (error.request) {
+            // The request was made but no response was received
+            if (attempts < MAX_RETRIES) {
+              console.log(`Attempt ${attempts} failed, retrying...`)
+              continue
+            }
+            throw new Error('No response received from API')
+          } else {
+            // Something happened in setting up the request
+            throw new Error(`Request setup error: ${error.message}`)
           }
-          
-          // Wait before retrying (exponential backoff)
-          const delay = Math.min(1000 * Math.pow(2, attempts), 10000)
-          console.log(`Retrying in ${delay}ms...`)
-          await new Promise(resolve => setTimeout(resolve, delay))
         }
       }
 
