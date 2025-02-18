@@ -41,7 +41,18 @@ export default defineComponent({
         headers
       })
 
-      console.log("Book data received:", JSON.stringify(bookData, null, 2))
+      // Add query for book_skus data
+      console.log("Fetching book_skus data...")
+      const bookSkusData = await axios($, {
+        url: `${baseURL}/book_skus?id=eq.1`,
+        headers
+      })
+
+      console.log("Book skus data received:", JSON.stringify(bookSkusData, null, 2))
+
+      if (!bookSkusData.length) {
+        throw new Error("No book_skus data found")
+      }
 
       if (!bookData.length) {
         throw new Error(`No book found with ID ${bookId}`)
@@ -140,7 +151,11 @@ export default defineComponent({
           name,
           message: message || "" // Handle null message by providing empty string
         },
-        images
+        images,
+        files: {
+          guts: bookSkusData[0].file_guts || "",
+          cover: bookSkusData[0].file_cover || ""
+        }
       }
 
       // Log final response
