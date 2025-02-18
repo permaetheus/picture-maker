@@ -18,6 +18,7 @@
 "book_skus","print_company","text","null","false","YES"
 "book_skus","created_at","timestamp with time zone","null","false","YES"
 "book_skus","updated_at","timestamp with time zone","null","false","YES"
+"book_skus","page_count_guts","smallint","null","false","YES"
 "books","id","bigint","null","true","NO"
 "books","recipient_id","bigint","recipients.id","false","YES"
 "books","status","character","null","false","NO"

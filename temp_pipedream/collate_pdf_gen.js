@@ -155,7 +155,8 @@ export default defineComponent({
         files: {
           guts: bookSkusData[0].file_guts || "",
           cover: bookSkusData[0].file_cover || ""
-        }
+        },
+        pageCount: bookSkusData[0].page_count_guts || 0  // Add the page count from book_skus
       }
 
       // Log final response
