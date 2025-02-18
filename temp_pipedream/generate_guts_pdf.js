@@ -97,7 +97,7 @@ export default defineComponent({
         formData.append('page', pageNumber)
 
         // Add output filename
-        const outputName = `${steps.trigger.event.book_id}_${Date.now()}`
+        const outputName = `${steps.trigger.event.book_id}_guts_${Date.now()}`
         formData.append('output', outputName)
 
         console.log(`Adding image to page ${imageData.page}`)
