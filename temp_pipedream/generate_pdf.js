@@ -39,7 +39,7 @@ export default defineComponent({
         throw new Error(`Failed to download guts PDF: ${error.message}`)
       }
 
-      const PAGE_COUNT = 28
+      const PAGE_COUNT = steps.trigger.event.book_data.pageCount
       console.log(`Processing images for ${PAGE_COUNT}-page PDF`)
 
       // Sort images by page number and validate page numbers
