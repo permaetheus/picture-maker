@@ -173,40 +173,45 @@ export default defineComponent({
     const gutsStorageUrl = `https://${this.supabase.$auth.subdomain}.supabase.co/storage/v1/object/public/finalized_pdf_forprint/${gutsFileName}`
 
     // Update the books table with the PDF URLs
-    const updateResponse = await axios($, {
-      method: 'PATCH',
-      url: `https://${this.supabase.$auth.subdomain}.supabase.co/rest/v1/books?id=eq.${bookId}`,
-      headers: {
-        'Authorization': `Bearer ${this.supabase.$auth.service_key}`,
-        'apikey': this.supabase.$auth.service_key,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      data: {
-        cover_pdf_key: coverStorageUrl,
-        guts_pdf_key: gutsStorageUrl
+    try {
+      await axios($, {
+        method: 'PATCH',
+        url: `https://${this.supabase.$auth.subdomain}.supabase.co/rest/v1/books?id=eq.${bookId}`,
+        headers: {
+          'Authorization': `Bearer ${this.supabase.$auth.service_key}`,
+          'apikey': this.supabase.$auth.service_key,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        data: {
+          cover_pdf_key: coverStorageUrl,
+          guts_pdf_key: gutsStorageUrl
+        }
+      })
+
+      // If we get here, the update succeeded (no error was thrown)
+      console.log('Database update completed successfully')
+
+      return {
+        coverUpload: (coverResponse?.Key || coverResponse?.data?.Key) ? 'success' : 'failed',
+        gutsUpload: (gutsResponse?.Key || gutsResponse?.data?.Key) ? 'success' : 'failed',
+        dbUpdate: 'success',  // If no error was thrown, consider it successful
+        coverUrl: coverStorageUrl,
+        gutsUrl: gutsStorageUrl,
+        coverSize: coverPDF.length,
+        gutsSize: gutsPDF.length
       }
-    })
-
-    // Add detailed response logging
-    console.log('Full database update response:', {
-      status: updateResponse?.status,
-      statusText: updateResponse?.statusText,
-      data: updateResponse?.data,
-      headers: updateResponse?.headers
-    })
-
-    // Consider the update successful if we get here without an error
-    const dbUpdateSuccess = !updateResponse?.status || updateResponse?.status < 400
-
-    return {
-      coverUpload: (coverResponse?.Key || coverResponse?.data?.Key) ? 'success' : 'failed',
-      gutsUpload: (gutsResponse?.Key || gutsResponse?.data?.Key) ? 'success' : 'failed',
-      dbUpdate: dbUpdateSuccess ? 'success' : 'failed',  // Modified success condition
-      coverUrl: coverStorageUrl,
-      gutsUrl: gutsStorageUrl,
-      coverSize: coverPDF.length,
-      gutsSize: gutsPDF.length
+    } catch (error) {
+      console.error('Database update error:', error)
+      return {
+        coverUpload: (coverResponse?.Key || coverResponse?.data?.Key) ? 'success' : 'failed',
+        gutsUpload: (gutsResponse?.Key || gutsResponse?.data?.Key) ? 'success' : 'failed',
+        dbUpdate: 'failed',
+        coverUrl: coverStorageUrl,
+        gutsUrl: gutsStorageUrl,
+        coverSize: coverPDF.length,
+        gutsSize: gutsPDF.length
+      }
     }
   },
 })
