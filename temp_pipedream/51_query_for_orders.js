@@ -55,7 +55,7 @@ export default defineComponent({
         console.log('Shipping to:', addressDetails)
         console.log('Order items count:', order.order_items?.length || 0)
         order.order_items?.forEach((item) => {
-          console.log(`- Book ${item.book_id} status: ${item.books?.status}, quantity: ${item.quantity}`)
+          console.log(`- Book ${item.book_id} status: ${item.books?.status}, quantity: ${item.quantity}, retail_price: $11.14`)
           console.log(`  PDFs - Guts: ${item.books?.guts_pdf_key || 'N/A'}, Cover: ${item.books?.cover_pdf_key || 'N/A'}`)
         })
       })
@@ -67,6 +67,13 @@ export default defineComponent({
           console.log(`Order ${order.shopify_order_number} skipped - no items`)
           return false
         }
+        
+        // Add retail_price and sku to each order item
+        order.order_items = order.order_items.map(item => ({
+          ...item,
+          retail_price: 11.14,
+          sku: "HCIW_8x10_GLS_GL100T"
+        }))
         
         const hasAllBooksReady = order.order_items.every(item => item.books?.status === 'R')
         
