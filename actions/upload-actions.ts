@@ -32,7 +32,9 @@ export async function uploadImageAction(
         id,
         book_id,
         books:book_id (
+          id,
           order_items (
+            order_id,
             order:order_id (
               shopify_order_number
             )
@@ -49,8 +51,19 @@ export async function uploadImageAction(
       }
     }
 
-    // Extract order number from nested data
-    const shopifyOrderNumber = portraitData.books?.order_items?.[0]?.order?.shopify_order_number || 'unknown'
+    // Safely pick the first book
+    const firstBook = portraitData.books?.[0]
+
+    // Then the first order_item from that book
+    const firstItem = firstBook?.order_items?.[0]
+
+    // If "order" is returned as an array, pick the first element.
+    const singleOrder = Array.isArray(firstItem?.order)
+      ? firstItem.order[0]
+      : firstItem?.order
+
+    // Finally, get the shopify_order_number
+    const shopifyOrderNumber = singleOrder?.shopify_order_number ?? "unknown"
     
     // Force .png extension regardless of input
     const filename = `${shopifyOrderNumber}_${portraitData.book_id}_${portraitData.id}_${worker?.id || 'unknown'}_${Date.now()}.png`
