@@ -1,24 +1,18 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
+import * as React from "react"
+import { useRef, useState, useEffect } from "react"
+import Image from "next/image"
+import { Loader2, Upload } from "lucide-react"
+import { toast } from "sonner"
+import { uploadImageAction } from "@/actions/upload-actions"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Upload, X } from "lucide-react"
-import Image from "next/image"
-import { uploadImageAction } from "@/actions/upload-actions"
-import { useToast } from "@/components/ui/use-toast"
 
 interface UploadPortraitCardProps {
   onImageUpload?: (imageUrl: string) => Promise<void>
-  userId: string
+  userId?: string
   portraitId: number
 }
 
@@ -30,7 +24,6 @@ export default function UploadPortraitCard({
   const [image, setImage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { toast } = useToast()
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -38,13 +31,21 @@ export default function UploadPortraitCard({
     const file = event.target.files?.[0]
     if (!file) return
 
-    console.log("File type:", file.type)
+    // Check file size (10MB limit)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Please upload an image smaller than 10MB", {
+        description: "File too large"
+      })
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+      return
+    }
 
     if (file.type !== "image/png") {
-      toast({
-        variant: "destructive",
-        title: "Wrong file type",
-        description: "Please upload a PNG file only"
+      toast.error("Please upload a PNG file only", {
+        description: "Wrong file type"
       })
       if (fileInputRef.current) {
         fileInputRef.current.value = ""
@@ -60,11 +61,18 @@ export default function UploadPortraitCard({
   }
 
   const processPastedImage = (file: File) => {
+    // Check file size (10MB limit)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Please upload an image smaller than 10MB", {
+        description: "File too large"
+      })
+      return
+    }
+
     if (file.type !== "image/png") {
-      toast({
-        variant: "destructive",
-        title: "Invalid file type",
-        description: "Please paste a PNG image only."
+      toast.error("Please paste a PNG image only.", {
+        description: "Invalid file type"
       })
       return
     }
@@ -76,25 +84,27 @@ export default function UploadPortraitCard({
     reader.readAsDataURL(file)
   }
 
-  useEffect(() => {
-    const handleGlobalPaste = (event: ClipboardEvent) => {
-      const items = event.clipboardData?.items
-      const imageItem = Array.from(items || []).find(
-        item => item.type.indexOf("image") !== -1
-      )
+  // Handle paste events
+  const handlePaste = (event: ClipboardEvent) => {
+    const items = event.clipboardData?.items
+    if (!items) return
 
-      if (imageItem) {
-        const file = imageItem.getAsFile()
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        const file = item.getAsFile()
         if (file) {
           processPastedImage(file)
         }
+        break
       }
     }
+  }
 
-    window.addEventListener("paste", handleGlobalPaste)
-
+  // Add and remove paste event listener
+  useEffect(() => {
+    document.addEventListener("paste", handlePaste)
     return () => {
-      window.removeEventListener("paste", handleGlobalPaste)
+      document.removeEventListener("paste", handlePaste)
     }
   }, [])
 
@@ -139,6 +149,7 @@ export default function UploadPortraitCard({
                 width={300}
                 height={300}
                 className="mx-auto rounded-lg"
+                unoptimized
               />
             ) : (
               <div className="space-y-2 py-4">
@@ -159,25 +170,33 @@ export default function UploadPortraitCard({
             ref={fileInputRef}
           />
         </div>
-      </CardContent>
 
-      <CardFooter className="flex justify-between">
-        <Button
-          onClick={handleClear}
-          variant={image && !isLoading ? "destructive" : "outline"}
-          disabled={!image || isLoading}
-        >
-          <X className="mr-2 size-4" />
-          Clear
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          variant={image && !isLoading ? "success" : "default"}
-          disabled={!image || isLoading}
-        >
-          {isLoading ? "Uploading..." : "Upload"}
-        </Button>
-      </CardFooter>
+        {image && (
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={handleClear}
+              className="rounded px-4 py-2 text-gray-600 hover:bg-gray-100"
+              disabled={isLoading}
+            >
+              Clear
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 inline size-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                "Upload"
+              )}
+            </button>
+          </div>
+        )}
+      </CardContent>
     </Card>
   )
 }
