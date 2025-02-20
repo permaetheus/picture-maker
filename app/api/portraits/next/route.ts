@@ -8,6 +8,7 @@ interface ArtistStyle {
   midjourney_mboard?: string
   character?: string
   aspect_ratio?: string
+  repeat?: string
 }
 
 interface Recipient {
@@ -54,7 +55,8 @@ export async function GET(request: NextRequest) {
         prompt_template,
         midjourney_mboard,
         character,
-        aspect_ratio
+        aspect_ratio,
+        repeat
       )
     `
     )
@@ -94,7 +96,8 @@ export async function GET(request: NextRequest) {
         firstStyle.prompt_template?.trim(),
         firstStyle.midjourney_mboard?.trim(),
         firstStyle.character?.trim(),
-        firstStyle.aspect_ratio?.trim()
+        firstStyle.aspect_ratio?.trim(),
+        firstStyle.repeat?.trim()
       ]
         .filter(Boolean)
         .join(" ")
