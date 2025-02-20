@@ -136,7 +136,12 @@ export default function UploadPortraitCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upload Generated Image</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Upload Generated Image</CardTitle>
+          <span className="text-sm text-gray-500">
+            Portrait ID: {portraitId}
+          </span>
+        </div>
       </CardHeader>
 
       <CardContent>
