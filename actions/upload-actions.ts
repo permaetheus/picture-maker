@@ -41,7 +41,10 @@ export async function uploadImageAction(
       .eq('id', portraitId)
       .single()
 
+    console.log('Portrait query result:', JSON.stringify(portraitData, null, 2))
+
     if (portraitError || !portraitData) {
+      console.error('Portrait query error:', portraitError)
       return { 
         isSuccess: false, 
         message: 'Failed to fetch portrait data'
@@ -50,9 +53,11 @@ export async function uploadImageAction(
 
     // Get the Shopify order number from the joined data - handle the nested array structure
     const shopifyOrderNumber = portraitData.order_items?.[0]?.shopify_orders?.[0]?.shopify_order_number ?? "unknown"
+    console.log('Extracted Shopify order number:', shopifyOrderNumber)
     
     // Force .png extension regardless of input
     const filename = `${shopifyOrderNumber}_${portraitData.book_id}_${portraitData.id}_${worker?.id || 'unknown'}_${Date.now()}.png`
+    console.log('Generated filename:', filename)
 
     // Convert base64 to blob
     const base64Response = await fetch(base64Image)
