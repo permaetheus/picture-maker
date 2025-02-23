@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
         )
       ),
       artist_styles:style_id (
-        prompt_template,
+        prompt_template_male,
+        prompt_template_female,
         midjourney_mboard,
         character,
         stylize,
@@ -68,7 +69,8 @@ export async function GET(request: NextRequest) {
     id: data.id,
     status: data.status,
     created_at: data.created_at,
-    prompt_template: firstStyle?.prompt_template,
+    prompt_template_male: firstStyle?.prompt_template_male,
+    prompt_template_female: firstStyle?.prompt_template_female,
     midjourney_mboard: firstStyle?.midjourney_mboard,
     character: firstStyle?.character,
     stylize: firstStyle?.stylize,

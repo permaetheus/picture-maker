@@ -6,7 +6,10 @@ import { Copy } from "lucide-react"
 
 interface StyleCardProps {
   styleName: string
-  processedPrompt: string
+  prompt_template_male: string | null
+  prompt_template_female: string | null
+  recipient_gender: string
+  recipient_age: number
   midjourney_mboard: string | null
   character: string | null
   stylize: string | null
@@ -19,7 +22,10 @@ interface StyleCardProps {
 
 export default function StyleCard({
   styleName,
-  processedPrompt,
+  prompt_template_male,
+  prompt_template_female,
+  recipient_gender,
+  recipient_age,
   midjourney_mboard,
   character,
   stylize,
@@ -29,19 +35,30 @@ export default function StyleCard({
   negative_prompts,
   onCopy
 }: StyleCardProps) {
+  // Select the appropriate template based on gender
+  const template =
+    recipient_gender.toLowerCase() === "male"
+      ? prompt_template_male
+      : prompt_template_female
+
+  // Process the template with age
+  const processedPrompt = template
+    ? template.replace("{age}", recipient_age.toString())
+    : ""
+
   // Format the parameters in a specific order with proper spacing
   const parameters = [
-    midjourney_mboard, // --p parameter should come first
-    character, // --cw parameter
-    aspect_ratio, // --ar parameter
-    repeat, // --r parameter
+    midjourney_mboard,
+    character,
+    aspect_ratio,
+    repeat,
     stylize && `--stylize ${stylize}`,
     midj_version && `--v ${midj_version}`,
     negative_prompts && `--no ${negative_prompts}`
   ]
-    .filter(Boolean) // Remove null/undefined values
-    .map(param => (param as string).trim()) // Remove any extra spaces
-    .join(" ") // Join with single spaces
+    .filter(Boolean)
+    .map(param => (param as string).trim())
+    .join(" ")
 
   // Combine prompt and parameters with proper spacing
   const fullPrompt = `${processedPrompt.trim()}${parameters ? ` ${parameters}` : ""}`

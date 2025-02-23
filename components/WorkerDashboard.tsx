@@ -70,15 +70,39 @@ export default function WorkerDashboard() {
     }
   }
 
-  // Copy prompt to clipboard
+  // Update copyPrompt function to handle gender-specific templates
   const copyPrompt = async () => {
     if (!portrait) return
 
-    const processedPrompt = portrait.prompt_template
-      .replace("{age}", portrait.recipient_age.toString())
-      .replace("{gender}", portrait.recipient_gender)
+    // Select template based on gender
+    const template =
+      portrait.recipient_gender.toLowerCase() === "male"
+        ? portrait.prompt_template_male
+        : portrait.prompt_template_female
 
-    await navigator.clipboard.writeText(processedPrompt)
+    // Process the template with age
+    const processedPrompt = template.replace(
+      "{age}",
+      portrait.recipient_age.toString()
+    )
+
+    // Format parameters
+    const parameters = [
+      portrait.midjourney_mboard,
+      portrait.character,
+      portrait.aspect_ratio,
+      portrait.repeat,
+      portrait.stylize && `--stylize ${portrait.stylize}`,
+      portrait.midj_version && `--v ${portrait.midj_version}`,
+      portrait.negative_prompts && `--no ${portrait.negative_prompts}`
+    ]
+      .filter(Boolean)
+      .map(param => (param as string).trim())
+      .join(" ")
+
+    // Combine prompt and parameters
+    const fullPrompt = `${processedPrompt.trim()}${parameters ? ` ${parameters}` : ""}`
+    await navigator.clipboard.writeText(fullPrompt)
   }
 
   // Initial portrait fetch
@@ -110,10 +134,6 @@ export default function WorkerDashboard() {
     )
   }
 
-  const processedPrompt = portrait.prompt_template
-    .replace("{age}", portrait.recipient_age.toString())
-    .replace("{gender}", portrait.recipient_gender)
-
   return (
     <div className="mx-auto max-w-[800px] px-4">
       <div className="space-y-8">
@@ -133,7 +153,10 @@ export default function WorkerDashboard() {
 
         <StyleCard
           styleName={portrait.style_name}
-          processedPrompt={processedPrompt}
+          prompt_template_male={portrait.prompt_template_male}
+          prompt_template_female={portrait.prompt_template_female}
+          recipient_gender={portrait.recipient_gender}
+          recipient_age={portrait.recipient_age}
           midjourney_mboard={portrait.midjourney_mboard}
           character={portrait.character}
           stylize={portrait.stylize}
