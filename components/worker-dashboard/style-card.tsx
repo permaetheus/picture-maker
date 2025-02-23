@@ -57,7 +57,7 @@ export default function StyleCard({
         </div>
 
         <Button
-          onClick={onCopy}
+          onClick={() => navigator.clipboard.writeText(fullPrompt)}
           className="w-full sm:w-auto"
           disabled={!fullPrompt}
         >
