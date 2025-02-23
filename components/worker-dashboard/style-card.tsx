@@ -41,9 +41,11 @@ export default function StyleCard({
       ? prompt_template_male
       : prompt_template_female
 
-  // Process the template with age
+  // Process the template with age and gender
   const processedPrompt = template
-    ? template.replace("{age}", recipient_age.toString())
+    ? template
+        .replace("{age}", recipient_age.toString())
+        .replace("{gender}", recipient_gender)
     : ""
 
   // Format the parameters in a specific order with proper spacing
