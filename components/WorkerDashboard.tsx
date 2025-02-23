@@ -134,6 +134,13 @@ export default function WorkerDashboard() {
         <StyleCard
           styleName={portrait.style_name}
           processedPrompt={processedPrompt}
+          midjourney_mboard={portrait.midjourney_mboard}
+          character={portrait.character}
+          stylize={portrait.stylize}
+          aspect_ratio={portrait.aspect_ratio}
+          repeat={portrait.repeat}
+          midj_version={portrait.midj_version}
+          negative_prompts={portrait.negative_prompts}
           onCopy={copyPrompt}
         />
       </div>

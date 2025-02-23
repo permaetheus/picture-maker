@@ -7,14 +7,43 @@ import { Copy } from "lucide-react"
 interface StyleCardProps {
   styleName: string
   processedPrompt: string
+  midjourney_mboard: string | null
+  character: string | null
+  stylize: string | null
+  aspect_ratio: string | null
+  repeat: string | null
+  midj_version: string | null
+  negative_prompts: string | null
   onCopy: () => Promise<void>
 }
 
 export default function StyleCard({
   styleName,
   processedPrompt,
+  midjourney_mboard,
+  character,
+  stylize,
+  aspect_ratio,
+  repeat,
+  midj_version,
+  negative_prompts,
   onCopy
 }: StyleCardProps) {
+  // Construct the full prompt by concatenating all non-null fields
+  const fullPrompt = [
+    processedPrompt,
+    midjourney_mboard,
+    character,
+    stylize,
+    aspect_ratio,
+    repeat,
+    midj_version,
+    negative_prompts ? `--no ${negative_prompts}` : null
+  ]
+    .filter(Boolean) // Remove null/undefined values
+    .join(" ")
+    .trim() // Remove extra spaces
+
   return (
     <Card>
       <CardHeader>
@@ -22,7 +51,7 @@ export default function StyleCard({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded-lg bg-gray-50 p-4">
-          <pre className="whitespace-pre-wrap">{processedPrompt}</pre>
+          <pre className="whitespace-pre-wrap">{fullPrompt}</pre>
         </div>
 
         <Button onClick={onCopy} className="w-full sm:w-auto">

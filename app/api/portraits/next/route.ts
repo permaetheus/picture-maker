@@ -23,7 +23,14 @@ export async function GET(request: NextRequest) {
         )
       ),
       artist_styles:style_id (
-        prompt_template
+        prompt_template,
+        midjourney_mboard,
+        character,
+        stylize,
+        aspect_ratio,
+        repeat,
+        midj_version,
+        negative_prompts
       )
     `
     )
@@ -62,6 +69,13 @@ export async function GET(request: NextRequest) {
     status: data.status,
     created_at: data.created_at,
     prompt_template: firstStyle?.prompt_template,
+    midjourney_mboard: firstStyle?.midjourney_mboard,
+    character: firstStyle?.character,
+    stylize: firstStyle?.stylize,
+    aspect_ratio: firstStyle?.aspect_ratio,
+    repeat: firstStyle?.repeat,
+    midj_version: firstStyle?.midj_version,
+    negative_prompts: firstStyle?.negative_prompts,
     recipient_age: firstRecipient?.age,
     recipient_gender: firstRecipient?.gender,
     reference_photo_url: firstRecipient?.photo_key
