@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react"
 import ReferencePhotoCard from "@/components/worker-dashboard/reference-photo-card"
 import StyleCard from "@/components/worker-dashboard/style-card"
 import UploadPortraitCard from "@/components/worker-dashboard/upload-portrait-card"
+import ImageReferenceCard from "@/components/worker-dashboard/image-reference-card"
 
 import { Portrait } from "@/types"
 
@@ -149,7 +150,16 @@ export default function WorkerDashboard() {
           </Alert>
         )}
 
-        <ReferencePhotoCard referencePhotoUrl={portrait.reference_photo_url} />
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <ReferencePhotoCard
+            referencePhotoUrl={portrait.reference_photo_url}
+          />
+          <ImageReferenceCard
+            imagePromptMale={portrait.image_prompt_male}
+            imagePromptFemale={portrait.image_prompt_female}
+            recipientGender={portrait.recipient_gender}
+          />
+        </div>
 
         <StyleCard
           styleName={portrait.style_name}

@@ -25,6 +25,8 @@ export async function GET(request: NextRequest) {
       artist_styles:style_id (
         prompt_template_male,
         prompt_template_female,
+        image_prompt_male,
+        image_prompt_female,
         midjourney_mboard,
         character,
         stylize,
@@ -80,7 +82,9 @@ export async function GET(request: NextRequest) {
     negative_prompts: firstStyle?.negative_prompts,
     recipient_age: firstRecipient?.age,
     recipient_gender: firstRecipient?.gender,
-    reference_photo_url: firstRecipient?.photo_key
+    reference_photo_url: firstRecipient?.photo_key,
+    image_prompt_male: firstStyle?.image_prompt_male,
+    image_prompt_female: firstStyle?.image_prompt_female
   }
   console.log("Transformed data:", transformedData)
 

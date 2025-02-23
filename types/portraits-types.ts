@@ -5,6 +5,8 @@ export interface Portrait {
   recipient_gender: string
   prompt_template_male: string
   prompt_template_female: string
+  image_prompt_male: string
+  image_prompt_female: string
   midjourney_mboard: string
   character: string
   stylize: string
