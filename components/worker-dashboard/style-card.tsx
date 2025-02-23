@@ -48,10 +48,10 @@ export default function StyleCard({
 
   // Format the parameters in a specific order with proper spacing
   const parameters = [
-    midjourney_mboard,
-    character,
-    aspect_ratio,
-    repeat,
+    midjourney_mboard && `--p ${midjourney_mboard}`,
+    character && `--cw ${character}`,
+    aspect_ratio && `--ar ${aspect_ratio}`,
+    repeat && `--r ${repeat}`,
     stylize && `--stylize ${stylize}`,
     midj_version && `--v ${midj_version}`,
     negative_prompts && `--no ${negative_prompts}`
