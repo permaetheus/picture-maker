@@ -38,7 +38,6 @@ export async function GET(request: NextRequest) {
     `
     )
     .eq("status", "P")
-    .is("worker_id", null)
     .order("created_at", { ascending: true })
     .limit(1)
     .single()
