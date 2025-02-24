@@ -25,7 +25,14 @@ export async function uploadImageAction(
       .eq("clerk_id", userId)
       .single()
 
-    // Then get portrait data
+    if (!worker?.id) {
+      return {
+        isSuccess: false,
+        message: 'Worker not found'
+      }
+    }
+
+    // Then get portrait data with all required relationships
     const { data: portraitData, error: portraitError } = await supabase
       .from("portraits")
       .select(`
@@ -35,7 +42,7 @@ export async function uploadImageAction(
           id,
           order_items (
             order_id,
-            order:order_id (
+            shopify_orders!order_id (
               shopify_order_number
             )
           )
@@ -51,22 +58,28 @@ export async function uploadImageAction(
       }
     }
 
-    // Safely pick the first book
-    const firstBook = portraitData.books?.[0]
+    // Safely navigate the relationship chain
+    const firstBook = Array.isArray(portraitData.books) ? portraitData.books[0] : portraitData.books
+    const firstOrderItem = firstBook?.order_items?.[0]
+    const shopifyOrder = Array.isArray(firstOrderItem?.shopify_orders) 
+      ? firstOrderItem?.shopify_orders[0] 
+      : firstOrderItem?.shopify_orders
 
-    // Then the first order_item from that book
-    const firstItem = firstBook?.order_items?.[0]
+    if (!shopifyOrder?.shopify_order_number) {
+      console.log('Debug data:', {
+        portraitData,
+        firstBook,
+        firstOrderItem,
+        shopifyOrder
+      })
+      return {
+        isSuccess: false,
+        message: 'Failed to find Shopify order number'
+      }
+    }
 
-    // If "order" is returned as an array, pick the first element.
-    const singleOrder = Array.isArray(firstItem?.order)
-      ? firstItem.order[0]
-      : firstItem?.order
-
-    // Finally, get the shopify_order_number
-    const shopifyOrderNumber = singleOrder?.shopify_order_number ?? "unknown"
-    
-    // Force .png extension regardless of input
-    const filename = `${shopifyOrderNumber}_${portraitData.book_id}_${portraitData.id}_${worker?.id || 'unknown'}_${Date.now()}.png`
+    // Format: shopifyOrderNumber_bookId_portraitId_workerId_timestamp.png
+    const filename = `${shopifyOrder.shopify_order_number}_${portraitData.book_id}_${portraitData.id}_${worker.id}_${Date.now()}.png`
 
     // Convert base64 to blob
     const base64Response = await fetch(base64Image)
