@@ -56,7 +56,7 @@ export default function ImageReferenceCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Image Reference</CardTitle>
+        <CardTitle>Example Image</CardTitle>
       </CardHeader>
       <CardContent>
         {imageUrl ? (
