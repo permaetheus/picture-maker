@@ -3,12 +3,17 @@
 import * as React from "react"
 import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
-import { Loader2, Upload } from "lucide-react"
+import { Loader2, Upload, HelpCircle } from "lucide-react"
 import { toast } from "sonner"
 import { uploadImageAction } from "@/actions/upload-actions"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent
+} from "@/components/ui/hover-card"
 
 interface UploadPortraitCardProps {
   onImageUpload?: (imageUrl: string) => Promise<void>
@@ -137,7 +142,32 @@ export default function UploadPortraitCard({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Upload Generated Image</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle>Upload Generated Image</CardTitle>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <button className="rounded-md bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800 transition-colors hover:bg-yellow-200">
+                  Image Selection Guide
+                </button>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80">
+                <div className="space-y-2">
+                  <h4 className="font-medium">Image Selection Guidelines</h4>
+                  <ul className="list-disc space-y-1 pl-4 text-sm">
+                    <li>
+                      Choose the highest quality image from your Midjourney
+                      results
+                    </li>
+                    <li>Image must be a PNG file format</li>
+                    <li>Maximum file size is 10MB</li>
+                    <li>Ensure the portrait matches the reference photo</li>
+                    <li>Verify the style matches the requested parameters</li>
+                    <li>Check for any artifacts or distortions</li>
+                  </ul>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
           <span className="text-sm text-gray-500">
             Portrait ID: {portraitId}
           </span>
