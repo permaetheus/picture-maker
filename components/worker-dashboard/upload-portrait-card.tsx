@@ -155,14 +155,19 @@ export default function UploadPortraitCard({
                   <h4 className="font-medium">Image Selection Guidelines</h4>
                   <ul className="list-disc space-y-1 pl-4 text-sm">
                     <li>
-                      Choose the highest quality image from your Midjourney
-                      results
+                      Choose an image that looks like the character reference
+                      human
                     </li>
-                    <li>Image must be a PNG file format</li>
-                    <li>Maximum file size is 10MB</li>
-                    <li>Ensure the portrait matches the reference photo</li>
-                    <li>Verify the style matches the requested parameters</li>
-                    <li>Check for any artifacts or distortions</li>
+                    <li>Image should have no disfigured limbs or hands</li>
+                    <li>Image should have good composition and lighting</li>
+                    <li>
+                      Image should have nice expressions for the character
+                    </li>
+                    <li>
+                      Verify the style matches the requested style in image
+                      example
+                    </li>
+                    <li>Check for any weird artifacts or distortions</li>
                   </ul>
                 </div>
               </HoverCardContent>
