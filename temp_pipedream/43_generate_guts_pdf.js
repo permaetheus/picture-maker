@@ -150,6 +150,10 @@ export default defineComponent({
         }
       }
 
+      // Store finalResponse data for the return value
+      // We'll still return this exact object while processing the text addition
+      const returnValue = finalResponse;
+
       // After all images are processed, add text message to page 2 if one exists
       if (lastOutputId && book_data.recipient?.message) {
         console.log("Adding dedication message to page 2")
@@ -211,10 +215,13 @@ export default defineComponent({
               throw new Error(`API Error: ${textResponse.data.error}`)
             }
             
-            // Update final response with text addition result
-            finalResponse = textResponse.data
-            textSuccess = true
-            console.log("Successfully added dedication message to PDF")
+            // After text addition succeeds
+            if (textSuccess) {
+              // Update only the essential ID/URL values but keep structure the same
+              returnValue.outputId = textResponse.data.outputId;
+              returnValue.outputUrl = textResponse.data.outputUrl;
+              console.log("Return value updated to reference the PDF with text");
+            }
             
           } catch (error) {
             console.error(`Text addition attempt ${textAttempts} failed:`, error.response?.data || error.message)
@@ -230,7 +237,8 @@ export default defineComponent({
         console.log("No dedication message found, skipping text addition")
       }
 
-      return finalResponse
+      // Return the structurally consistent but updated response
+      return returnValue;
     } catch (error) {
       console.error("Error in PDF generation:", error)
       throw error
