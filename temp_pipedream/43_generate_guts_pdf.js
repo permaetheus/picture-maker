@@ -150,6 +150,86 @@ export default defineComponent({
         }
       }
 
+      // After all images are processed, add text message to page 2 if one exists
+      if (lastOutputId && book_data.recipient?.message) {
+        console.log("Adding dedication message to page 2")
+        
+        // Create message text object
+        const textObject = [
+          {
+            "font": "arial",
+            "max_width": "300",
+            "opacity": "1",
+            "page": "2", // Page 2
+            "rotation": "0",
+            "text": book_data.recipient.message,
+            "text_color_cmyk": "82, 67, 0, 0",
+            "text_size": "16",
+            "x": "210",
+            "y": "490"
+          }
+        ]
+        
+        // Create form data for the text addition
+        const textFormData = new FormData()
+        textFormData.append('id', lastOutputId)
+        textFormData.append('text_objects', JSON.stringify(textObject))
+        textFormData.append('output', `${steps.trigger.event.book_id}_guts_withtext_${Date.now()}`)
+        
+        // Make the API call to add text
+        let textAttempts = 0
+        let textSuccess = false
+        
+        while (textAttempts < MAX_RETRIES && !textSuccess) {
+          try {
+            textAttempts++
+            const textResponse = await axios({
+              method: 'post',
+              url: 'https://api.pdfrest.com/pdf-with-added-text',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': `multipart/form-data; boundary=${textFormData._boundary}`,
+                'Api-Key': apiKey,
+                ...textFormData.getHeaders()
+              },
+              data: textFormData,
+              maxBodyLength: Infinity
+            })
+            
+            // Check for response errors
+            if (!textResponse || !textResponse.data) {
+              throw new Error('Empty response from text API')
+            }
+            
+            if (textResponse.status !== 200) {
+              console.error('Text API Error Response:', textResponse.data)
+              throw new Error(`API returned status ${textResponse.status}: ${textResponse.data?.error || 'Unknown error'}`)
+            }
+            
+            if (textResponse.data.error) {
+              console.error('Text API Error:', textResponse.data)
+              throw new Error(`API Error: ${textResponse.data.error}`)
+            }
+            
+            // Update final response with text addition result
+            finalResponse = textResponse.data
+            textSuccess = true
+            console.log("Successfully added dedication message to PDF")
+            
+          } catch (error) {
+            console.error(`Text addition attempt ${textAttempts} failed:`, error.response?.data || error.message)
+            if (textAttempts === MAX_RETRIES) {
+              console.error(`Failed to add text after ${MAX_RETRIES} attempts. Returning PDF without text.`)
+              break // Continue with the image-only PDF if text addition fails
+            }
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000 * textAttempts))
+          }
+        }
+      } else if (!book_data.recipient?.message) {
+        console.log("No dedication message found, skipping text addition")
+      }
+
       return finalResponse
     } catch (error) {
       console.error("Error in PDF generation:", error)
