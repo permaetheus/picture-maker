@@ -10,10 +10,14 @@ export default defineComponent({
     }
 
     const { book_data } = steps.trigger.event
-    const { files, images } = book_data
+    const { files, coverImage } = book_data
 
     if (!files?.cover) {
       throw new Error("No cover PDF URL provided")
+    }
+
+    if (!coverImage) {
+      throw new Error("No cover image URL provided in book_data")
     }
 
     // Get API key from environment variables
@@ -23,12 +27,6 @@ export default defineComponent({
     }
 
     try {
-      // Find the image with styleId 10
-      const coverImage = images.find(img => img.styleId === 10)
-      if (!coverImage) {
-        throw new Error("No cover image found with styleId 10")
-      }
-
       // Download the cover PDF
       let pdfBuffer
       try {
@@ -42,12 +40,12 @@ export default defineComponent({
         throw new Error(`Failed to download cover PDF: ${error.message}`)
       }
 
-      // Download the cover image
+      // Download the cover image from the direct coverImage URL
       let imageBuffer
       try {
         const imageResponse = await axios({
           method: 'GET',
-          url: coverImage.imageUrl,
+          url: coverImage,
           responseType: 'arraybuffer'
         })
         imageBuffer = imageResponse.data
@@ -65,12 +63,13 @@ export default defineComponent({
       })
 
       // Add image and its placement data
+      // The placement data is specifically for the cover image
       formData.append('image_file', imageBuffer, {
         filename: 'cover_image.png',
         contentType: 'image/png'
       })
-      formData.append('x', '0')
-      formData.append('y', '0')
+      formData.append('x', '853')
+      formData.append('y', '188')
       formData.append('page', '1')
 
       // Add output filename
