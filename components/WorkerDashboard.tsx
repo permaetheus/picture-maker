@@ -174,6 +174,8 @@ export default function WorkerDashboard() {
           repeat={portrait.repeat}
           midj_version={portrait.midj_version}
           negative_prompts={portrait.negative_prompts}
+          style_reference={portrait.style_reference}
+          style_weight={portrait.style_weight}
           onCopy={copyPrompt}
         />
       </div>

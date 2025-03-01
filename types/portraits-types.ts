@@ -15,4 +15,6 @@ export interface Portrait {
   midj_version: string
   negative_prompts: string
   style_name: string
+  style_reference: string | null
+  style_weight: string | null
 }
