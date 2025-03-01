@@ -33,7 +33,9 @@ export async function GET(request: NextRequest) {
         aspect_ratio,
         repeat,
         midj_version,
-        negative_prompts
+        negative_prompts,
+        style_reference,
+        style_weight
       )
     `
     )
@@ -79,6 +81,8 @@ export async function GET(request: NextRequest) {
     repeat: firstStyle?.repeat,
     midj_version: firstStyle?.midj_version,
     negative_prompts: firstStyle?.negative_prompts,
+    style_reference: firstStyle?.style_reference,
+    style_weight: firstStyle?.style_weight,
     recipient_age: firstRecipient?.age,
     recipient_gender: firstRecipient?.gender,
     reference_photo_url: firstRecipient?.photo_key,

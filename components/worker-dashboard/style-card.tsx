@@ -17,6 +17,8 @@ interface StyleCardProps {
   repeat: string | null
   midj_version: string | null
   negative_prompts: string | null
+  style_reference: string | null
+  style_weight: string | null
   onCopy: () => Promise<void>
 }
 
@@ -33,6 +35,8 @@ export default function StyleCard({
   repeat,
   midj_version,
   negative_prompts,
+  style_reference,
+  style_weight,
   onCopy
 }: StyleCardProps) {
   // Select the appropriate template based on gender
@@ -55,6 +59,8 @@ export default function StyleCard({
     aspect_ratio && `--ar ${aspect_ratio}`,
     repeat && `--r ${repeat}`,
     stylize && `--stylize ${stylize}`,
+    style_reference && `--sref ${style_reference}`,
+    style_weight && `--sw ${style_weight}`,
     midj_version && `--v ${midj_version}`,
     negative_prompts && `--no ${negative_prompts}`
   ]
