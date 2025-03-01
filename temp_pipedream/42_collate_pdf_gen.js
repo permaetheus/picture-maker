@@ -158,13 +158,14 @@ export default defineComponent({
 
       // Find cover image (style ID 20)
       console.log("Looking for cover image (style ID 20)...")
-      const coverImage = portraitData.find(portrait => portrait.style_id === 20)?.hires_image_key || null
+      const coverPortrait = portraitData.find(portrait => portrait.style_id === 20)
       
-      if (!coverImage) {
-        console.warn(`No cover image (style ID 20) found for book ID ${bookId}`)
-      } else {
-        console.log(`Found cover image: ${coverImage}`)
+      if (!coverPortrait || !coverPortrait.hires_image_key) {
+        throw new Error(`No cover image (style ID 20) found for book ID ${bookId}`)
       }
+      
+      const coverImage = coverPortrait.hires_image_key
+      console.log(`Found cover image: ${coverImage}`)
 
       const response = {
         recipient: {
