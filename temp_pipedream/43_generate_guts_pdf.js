@@ -50,7 +50,10 @@ export default defineComponent({
       let finalResponse
       let currentPdfUrl = files.guts // Start with the initial guts PDF URL
       let lastOutputId = null // Track the last operation's output ID
-
+      
+      // Define MAX_RETRIES here so it's available throughout the function
+      const MAX_RETRIES = 3
+      
       for (const imageData of validImages) {
         console.log(`Processing image for page ${imageData.page}`)
 
@@ -92,7 +95,6 @@ export default defineComponent({
           imageUrl: imageData.imageUrl
         })
 
-        const MAX_RETRIES = 3
         let attempts = 0
         let success = false
         
@@ -216,11 +218,12 @@ export default defineComponent({
             }
             
             // After text addition succeeds
-            if (textSuccess) {
+            if (textResponse.data.outputId && textResponse.data.outputUrl) {
               // Update only the essential ID/URL values but keep structure the same
               returnValue.outputId = textResponse.data.outputId;
               returnValue.outputUrl = textResponse.data.outputUrl;
               console.log("Return value updated to reference the PDF with text");
+              textSuccess = true; // Mark as successful
             }
             
           } catch (error) {

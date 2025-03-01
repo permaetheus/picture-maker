@@ -12,6 +12,27 @@ import { execSync } from "child_process"
 // Promisify the pipeline function for easier stream handling
 const pipeline = promisify(stream.pipeline);
 
+// Helper function for retrying operations
+async function withRetry(operation, maxRetries = 3, delay = 1000) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt}/${maxRetries}`);
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      console.error(`Attempt ${attempt} failed: ${error.message}`);
+      if (attempt < maxRetries) {
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        // Exponential backoff
+        delay *= 2;
+      }
+    }
+  }
+  throw lastError;
+}
+
 export default defineComponent({
   props: {
     supabase: {
@@ -36,18 +57,20 @@ export default defineComponent({
     try {
       console.log(`Requesting portrait data for book_id: ${bookId}, style_id: 20`);
       
-      portraitData = await axios($, {
-        url: `https://${this.supabase.$auth.subdomain}.supabase.co/rest/v1/portraits`,
-        headers: {
-          Authorization: `Bearer ${this.supabase.$auth.service_key}`,
-          "apikey": `${this.supabase.$auth.service_key}`,
-          "Content-Type": "application/json"
-        },
-        params: {
-          select: "*",
-          book_id: `eq.${bookId}`,
-          style_id: "eq.20"
-        }
+      portraitData = await withRetry(async () => {
+        return await axios($, {
+          url: `https://${this.supabase.$auth.subdomain}.supabase.co/rest/v1/portraits`,
+          headers: {
+            Authorization: `Bearer ${this.supabase.$auth.service_key}`,
+            "apikey": `${this.supabase.$auth.service_key}`,
+            "Content-Type": "application/json"
+          },
+          params: {
+            select: "*",
+            book_id: `eq.${bookId}`,
+            style_id: "eq.20"
+          }
+        });
       });
       
       console.log("API Response data:", JSON.stringify(portraitData));
@@ -82,86 +105,135 @@ export default defineComponent({
     console.log(`Downloading image from URL: ${imageUrl} to ${originalImagePath}`);
     
     try {
-      // Use curl to download the file (more reliable for binary data)
-      const curlCommand = `curl -s -X GET "${imageUrl}" \
-        -H "Authorization: Bearer ${this.supabase.$auth.service_key}" \
-        -H "apikey: ${this.supabase.$auth.service_key}" \
-        -o "${originalImagePath}"`;
-      
-      console.log("Executing curl command to download image");
-      execSync(curlCommand);
-      
-      // Check if file was downloaded successfully
-      if (!fs.existsSync(originalImagePath)) {
-        throw new Error("File download failed - file does not exist");
-      }
-      
-      const stats = fs.statSync(originalImagePath);
-      console.log(`Downloaded file size: ${stats.size} bytes`);
-      
-      if (stats.size === 0) {
-        throw new Error("Downloaded file is empty");
-      }
+      // Use curl to download the file with retries
+      await withRetry(async () => {
+        const curlCommand = `curl -s -X GET "${imageUrl}" \
+          -H "Authorization: Bearer ${this.supabase.$auth.service_key}" \
+          -H "apikey: ${this.supabase.$auth.service_key}" \
+          -o "${originalImagePath}"`;
+        
+        console.log("Executing curl command to download image");
+        execSync(curlCommand);
+        
+        // Validate the downloaded file
+        if (!fs.existsSync(originalImagePath)) {
+          throw new Error("File download failed - file does not exist");
+        }
+        
+        const stats = fs.statSync(originalImagePath);
+        console.log(`Downloaded file size: ${stats.size} bytes`);
+        
+        if (stats.size === 0) {
+          throw new Error("Downloaded file is empty");
+        }
+        
+        // Basic image validation - try to get metadata
+        try {
+          const metadata = await sharp(originalImagePath).metadata();
+          console.log(`Image validation: ${metadata.width}x${metadata.height} ${metadata.format}`);
+          if (!metadata.width || !metadata.height) {
+            throw new Error("Invalid image - missing dimensions");
+          }
+        } catch (error) {
+          throw new Error(`Invalid image file: ${error.message}`);
+        }
+      });
       
       // 3. Process the image with sharp from the file system
       console.log("Processing image with Sharp...");
-      await sharp(originalImagePath)
-        .resize(WIDTH, HEIGHT, {
-          fit: 'fill',
-          withoutEnlargement: false
-        })
-        .withMetadata({
-          density: DPI
-        })
-        .png()
-        .toFile(processedImagePath);
-      
-      console.log("Image processing successful");
-      const processedStats = fs.statSync(processedImagePath);
-      console.log(`Processed file size: ${processedStats.size} bytes`);
+      await withRetry(async () => {
+        await sharp(originalImagePath)
+          .resize(WIDTH, HEIGHT, {
+            fit: 'fill',
+            withoutEnlargement: false
+          })
+          .withMetadata({
+            density: DPI
+          })
+          .png()
+          .toFile(processedImagePath);
+        
+        // Validate the processed file
+        if (!fs.existsSync(processedImagePath)) {
+          throw new Error("Image processing failed - output file does not exist");
+        }
+        
+        const processedStats = fs.statSync(processedImagePath);
+        console.log(`Processed file size: ${processedStats.size} bytes`);
+        
+        if (processedStats.size === 0) {
+          throw new Error("Processed file is empty");
+        }
+        
+        // Validate the processed image
+        const metadata = await sharp(processedImagePath).metadata();
+        if (metadata.width !== WIDTH || metadata.height !== HEIGHT) {
+          throw new Error(`Processed image has incorrect dimensions: ${metadata.width}x${metadata.height}`);
+        }
+      });
       
       // 4. Upload the processed image to Supabase storage
       const timestamp = Date.now();
       const filename = `${bookId}_portrait_hires_${timestamp}.png`;
       
       console.log(`Uploading processed image to Supabase: ${filename}`);
-      const fileContent = fs.readFileSync(processedImagePath);
+      let publicUrl;
       
-      const uploadResponse = await axios($, {
-        method: 'POST',
-        url: `https://${this.supabase.$auth.subdomain}.supabase.co/storage/v1/object/hires-portraits/${filename}`,
-        headers: {
-          Authorization: `Bearer ${this.supabase.$auth.service_key}`,
-          "apikey": `${this.supabase.$auth.service_key}`,
-          "Content-Type": "image/png"
-        },
-        data: fileContent
+      await withRetry(async () => {
+        const fileContent = fs.readFileSync(processedImagePath);
+        
+        if (!fileContent || fileContent.length === 0) {
+          throw new Error("Cannot upload empty file");
+        }
+        
+        const uploadResponse = await axios($, {
+          method: 'POST',
+          url: `https://${this.supabase.$auth.subdomain}.supabase.co/storage/v1/object/hires-portraits/${filename}`,
+          headers: {
+            Authorization: `Bearer ${this.supabase.$auth.service_key}`,
+            "apikey": `${this.supabase.$auth.service_key}`,
+            "Content-Type": "image/png"
+          },
+          data: fileContent
+        });
+        
+        console.log("Upload response:", JSON.stringify(uploadResponse));
+        
+        // Verify upload was successful
+        if (!uploadResponse || uploadResponse.error) {
+          throw new Error(`Upload failed: ${uploadResponse?.error || 'Unknown error'}`);
+        }
+        
+        // Get the public URL for the uploaded image
+        publicUrl = `https://${this.supabase.$auth.subdomain}.supabase.co/storage/v1/object/public/hires-portraits/${filename}`;
       });
-      
-      console.log("Upload response:", JSON.stringify(uploadResponse));
-      
-      // Get the public URL for the uploaded image
-      const publicUrl = `https://${this.supabase.$auth.subdomain}.supabase.co/storage/v1/object/public/hires-portraits/${filename}`;
       
       // 5. Update the portrait record with the high-res image URL
-      const updateResponse = await axios($, {
-        method: 'PATCH',
-        url: `https://${this.supabase.$auth.subdomain}.supabase.co/rest/v1/portraits`,
-        headers: {
-          Authorization: `Bearer ${this.supabase.$auth.service_key}`,
-          "apikey": `${this.supabase.$auth.service_key}`,
-          "Content-Type": "application/json",
-          "Prefer": "return=representation"
-        },
-        params: {
-          id: `eq.${portrait.id}`
-        },
-        data: {
-          hires_image_key: publicUrl
+      await withRetry(async () => {
+        const updateResponse = await axios($, {
+          method: 'PATCH',
+          url: `https://${this.supabase.$auth.subdomain}.supabase.co/rest/v1/portraits`,
+          headers: {
+            Authorization: `Bearer ${this.supabase.$auth.service_key}`,
+            "apikey": `${this.supabase.$auth.service_key}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+          },
+          params: {
+            id: `eq.${portrait.id}`
+          },
+          data: {
+            hires_image_key: publicUrl
+          }
+        });
+        
+        console.log("Update response:", JSON.stringify(updateResponse));
+        
+        // Verify update was successful
+        if (!updateResponse || updateResponse.error) {
+          throw new Error(`Database update failed: ${updateResponse?.error || 'Unknown error'}`);
         }
       });
-      
-      console.log("Update response:", JSON.stringify(updateResponse));
       
       // Clean up temporary files
       fs.unlinkSync(originalImagePath);
