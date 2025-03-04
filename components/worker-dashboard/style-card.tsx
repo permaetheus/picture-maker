@@ -49,7 +49,14 @@ export default function StyleCard({
   const processedPrompt = template
     ? template
         .replace("{age}", recipient_age.toString())
-        .replace("{gender}", recipient_gender)
+        .replace("{gender}", () => {
+          // Use boy/girl for under 18, otherwise use male/female
+          if (recipient_age < 18) {
+            return recipient_gender.toLowerCase() === "male" ? "boy" : "girl"
+          } else {
+            return recipient_gender.toLowerCase() === "male" ? "man" : "woman"
+          }
+        })
     : ""
 
   // Format the parameters in a specific order with proper spacing
