@@ -6,6 +6,7 @@ import { Copy, Check } from "lucide-react"
 import { useState } from "react"
 
 interface StyleCardProps {
+  style_id: number
   styleName: string
   prompt_template_male: string | null
   prompt_template_female: string | null
@@ -24,6 +25,7 @@ interface StyleCardProps {
 }
 
 export default function StyleCard({
+  style_id,
   styleName,
   prompt_template_male,
   prompt_template_female,
@@ -40,6 +42,8 @@ export default function StyleCard({
   style_weight,
   onCopy
 }: StyleCardProps) {
+  console.log("StyleCard props:", { style_id, styleName })
+
   // Add state for copy feedback
   const [copied, setCopied] = useState(false)
 
@@ -100,7 +104,14 @@ export default function StyleCard({
       className={`transition-all ${copied ? "bg-green-50 dark:bg-green-900/20" : ""}`}
     >
       <CardHeader>
-        <CardTitle>Style: {styleName}</CardTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CardTitle>Image Generation Prompt</CardTitle>
+          </div>
+          <span className="text-sm text-gray-500">
+            Style ID: {style_id}, <span className="italic">{styleName}</span>
+          </span>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded-lg bg-gray-50 p-4">

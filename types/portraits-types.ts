@@ -1,5 +1,7 @@
 export interface Portrait {
   id: number
+  style_id: number
+  style_name: string
   reference_photo_url: string
   recipient_age: number
   recipient_gender: string
@@ -14,7 +16,6 @@ export interface Portrait {
   repeat: string
   midj_version: string
   negative_prompts: string
-  style_name: string
   style_reference: string | null
   style_weight: string | null
   proof_status: string | null

@@ -182,6 +182,7 @@ export default function WorkerDashboard() {
         </div>
 
         <StyleCard
+          style_id={portrait.style_id}
           styleName={portrait.style_name}
           prompt_template_male={portrait.prompt_template_male}
           prompt_template_female={portrait.prompt_template_female}

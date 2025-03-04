@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     .select(
       `
       id,
+      style_id,
       status,
       proof_status,
       proof_feedback,
@@ -25,6 +26,8 @@ export async function GET(request: NextRequest) {
         )
       ),
       artist_styles:style_id (
+        id,
+        name,
         prompt_template_male,
         prompt_template_female,
         image_prompt_male,
@@ -72,6 +75,8 @@ export async function GET(request: NextRequest) {
 
   const transformedData = {
     id: data.id,
+    style_id: data.style_id,
+    style_name: firstStyle?.name,
     status: data.status,
     proof_status: data.proof_status,
     proof_feedback: data.proof_feedback,
@@ -97,6 +102,30 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     isSuccess: true,
-    data: transformedData
+    data: {
+      id: data.id,
+      style_id: data.style_id,
+      style_name: firstStyle?.name,
+      status: data.status,
+      proof_status: data.proof_status,
+      proof_feedback: data.proof_feedback,
+      created_at: data.created_at,
+      prompt_template_male: firstStyle?.prompt_template_male,
+      prompt_template_female: firstStyle?.prompt_template_female,
+      midjourney_mboard: firstStyle?.midjourney_mboard,
+      character: firstStyle?.character,
+      stylize: firstStyle?.stylize,
+      aspect_ratio: firstStyle?.aspect_ratio,
+      repeat: firstStyle?.repeat,
+      midj_version: firstStyle?.midj_version,
+      negative_prompts: firstStyle?.negative_prompts,
+      style_reference: firstStyle?.style_reference,
+      style_weight: firstStyle?.style_weight,
+      recipient_age: firstRecipient?.age,
+      recipient_gender: firstRecipient?.gender,
+      reference_photo_url: firstRecipient?.photo_key,
+      image_prompt_male: firstStyle?.image_prompt_male,
+      image_prompt_female: firstStyle?.image_prompt_female
+    }
   })
 }

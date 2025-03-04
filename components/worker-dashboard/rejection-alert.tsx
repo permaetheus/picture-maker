@@ -17,12 +17,14 @@ export default function RejectionAlert({
   return (
     <Alert variant="destructive">
       <AlertCircle className="size-4" />
-      <AlertTitle>This portrait was previously rejected</AlertTitle>
+      <AlertTitle>
+        This portrait was previously rejected by the customer
+      </AlertTitle>
       {feedback && (
         <AlertDescription className="mt-2">
           <div className="font-medium">
             Customer Feedback:{" "}
-            <span className="mt-1 whitespace-pre-wrap">{feedback}</span>
+            <span className="whitespace-pre-wrap font-normal">{feedback}</span>
           </div>
         </AlertDescription>
       )}
