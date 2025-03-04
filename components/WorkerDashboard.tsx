@@ -71,7 +71,7 @@ export default function WorkerDashboard() {
     }
   }
 
-  // Update copyPrompt function to handle gender-specific templates
+  // Update copyPrompt function to handle all parameters with proper prefixes
   const copyPrompt = async () => {
     if (!portrait) return
 
@@ -81,19 +81,31 @@ export default function WorkerDashboard() {
         ? portrait.prompt_template_male
         : portrait.prompt_template_female
 
-    // Process the template with age
-    const processedPrompt = template.replace(
-      "{age}",
-      portrait.recipient_age.toString()
-    )
+    // Process the template with age and gender
+    const processedPrompt = template
+      .replace("{age}", portrait.recipient_age.toString())
+      .replace("{gender}", () => {
+        // Use boy/girl for under 18, otherwise use man/woman
+        if (portrait.recipient_age < 18) {
+          return portrait.recipient_gender.toLowerCase() === "male"
+            ? "boy"
+            : "girl"
+        } else {
+          return portrait.recipient_gender.toLowerCase() === "male"
+            ? "man"
+            : "woman"
+        }
+      })
 
-    // Format parameters
+    // Format parameters with proper prefixes
     const parameters = [
-      portrait.midjourney_mboard,
-      portrait.character,
-      portrait.aspect_ratio,
-      portrait.repeat,
+      portrait.midjourney_mboard && `--p ${portrait.midjourney_mboard}`,
+      portrait.character && `--cw ${portrait.character}`,
+      portrait.aspect_ratio && `--ar ${portrait.aspect_ratio}`,
+      portrait.repeat && `--r ${portrait.repeat}`,
       portrait.stylize && `--stylize ${portrait.stylize}`,
+      portrait.style_reference && `--sref ${portrait.style_reference}`,
+      portrait.style_weight && `--sw ${portrait.style_weight}`,
       portrait.midj_version && `--v ${portrait.midj_version}`,
       portrait.negative_prompts && `--no ${portrait.negative_prompts}`
     ]
