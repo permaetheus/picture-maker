@@ -14,6 +14,8 @@ export async function GET(request: NextRequest) {
       `
       id,
       status,
+      proof_status,
+      proof_feedback,
       created_at,
       books:book_id (
         recipients:recipient_id (
@@ -71,6 +73,8 @@ export async function GET(request: NextRequest) {
   const transformedData = {
     id: data.id,
     status: data.status,
+    proof_status: data.proof_status,
+    proof_feedback: data.proof_feedback,
     created_at: data.created_at,
     prompt_template_male: firstStyle?.prompt_template_male,
     prompt_template_female: firstStyle?.prompt_template_female,

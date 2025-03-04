@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 // For your Prompt display
 // For your request
 import { useRouter } from "next/navigation"
+import RejectionAlert from "@/components/worker-dashboard/rejection-alert"
 
 interface WorkerClientPageProps {
   initialPortraitResult: {
@@ -63,6 +64,10 @@ export default function WorkerClientPage({
 
   return (
     <div className="space-y-4 p-4">
+      {data.proof_status === "R" && (
+        <RejectionAlert isRejected={true} feedback={data.proof_feedback} />
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Reference Photo</CardTitle>

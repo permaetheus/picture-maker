@@ -8,6 +8,7 @@ import ReferencePhotoCard from "@/components/worker-dashboard/reference-photo-ca
 import StyleCard from "@/components/worker-dashboard/style-card"
 import UploadPortraitCard from "@/components/worker-dashboard/upload-portrait-card"
 import ImageReferenceCard from "@/components/worker-dashboard/image-reference-card"
+import RejectionAlert from "@/components/worker-dashboard/rejection-alert"
 
 import { Portrait } from "@/types"
 
@@ -150,6 +151,13 @@ export default function WorkerDashboard() {
   return (
     <div className="mx-auto max-w-[800px] px-4">
       <div className="space-y-8">
+        {portrait.proof_status === "R" && (
+          <RejectionAlert
+            isRejected={true}
+            feedback={portrait.proof_feedback}
+          />
+        )}
+
         <UploadPortraitCard
           onImageUpload={handleImageUpload}
           userId={userId}

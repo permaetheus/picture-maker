@@ -17,4 +17,6 @@ export interface Portrait {
   style_name: string
   style_reference: string | null
   style_weight: string | null
+  proof_status: string | null
+  proof_feedback: string | null
 }
