@@ -2,7 +2,8 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Copy } from "lucide-react"
+import { Copy, Check } from "lucide-react"
+import { useState } from "react"
 
 interface StyleCardProps {
   styleName: string
@@ -39,6 +40,9 @@ export default function StyleCard({
   style_weight,
   onCopy
 }: StyleCardProps) {
+  // Add state for copy feedback
+  const [copied, setCopied] = useState(false)
+
   // Select the appropriate template based on gender
   const template =
     recipient_gender.toLowerCase() === "male"
@@ -78,8 +82,23 @@ export default function StyleCard({
   // Combine prompt and parameters with proper spacing
   const fullPrompt = `${processedPrompt.trim()}${parameters ? ` ${parameters}` : ""}`
 
+  // Handle copy with feedback
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(fullPrompt)
+    setCopied(true)
+
+    // Reset after short delay
+    setTimeout(() => {
+      setCopied(false)
+    }, 2000)
+
+    if (onCopy) await onCopy()
+  }
+
   return (
-    <Card>
+    <Card
+      className={`transition-all ${copied ? "bg-green-50 dark:bg-green-900/20" : ""}`}
+    >
       <CardHeader>
         <CardTitle>Style: {styleName}</CardTitle>
       </CardHeader>
@@ -89,12 +108,22 @@ export default function StyleCard({
         </div>
 
         <Button
-          onClick={() => navigator.clipboard.writeText(fullPrompt)}
+          onClick={handleCopy}
           className="w-full sm:w-auto"
           disabled={!fullPrompt}
+          variant={copied ? "success" : "default"}
         >
-          <Copy className="mr-2 size-4" />
-          Copy Prompt
+          {copied ? (
+            <>
+              <Check className="mr-2 size-4" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy className="mr-2 size-4" />
+              Copy Prompt
+            </>
+          )}
         </Button>
       </CardContent>
     </Card>
