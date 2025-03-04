@@ -107,6 +107,25 @@ export default function StyleCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CardTitle>Image Generation Prompt</CardTitle>
+            <Button
+              onClick={handleCopy}
+              className="ml-2"
+              disabled={!fullPrompt}
+              variant={copied ? "success" : "default"}
+              size="sm"
+            >
+              {copied ? (
+                <>
+                  <Check className="mr-2 size-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 size-4" />
+                  Copy Prompt
+                </>
+              )}
+            </Button>
           </div>
           <span className="text-sm text-gray-500">
             Style ID: {style_id}, <span className="italic">{styleName}</span>
@@ -117,25 +136,6 @@ export default function StyleCard({
         <div className="rounded-lg bg-gray-50 p-4">
           <pre className="whitespace-pre-wrap break-words">{fullPrompt}</pre>
         </div>
-
-        <Button
-          onClick={handleCopy}
-          className="w-full sm:w-auto"
-          disabled={!fullPrompt}
-          variant={copied ? "success" : "default"}
-        >
-          {copied ? (
-            <>
-              <Check className="mr-2 size-4" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy className="mr-2 size-4" />
-              Copy Prompt
-            </>
-          )}
-        </Button>
       </CardContent>
     </Card>
   )
