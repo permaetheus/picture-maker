@@ -240,6 +240,10 @@ export default function ReferencePhotoCard({
   return (
     <Card className="w-full">
       <CardContent className="p-4">
+        <h2 className="mb-4 text-xl font-semibold">
+          Character Reference Images
+        </h2>
+
         <div className="mb-4 flex gap-2">
           <span className="text-muted-foreground ml-auto text-sm">
             {photos.length} photo{photos.length !== 1 ? "s" : ""}
@@ -273,7 +277,7 @@ export default function ReferencePhotoCard({
         </div>
 
         <div className="text-muted-foreground mt-4 text-sm">
-          <p>Drag images to use them in your application.</p>
+          <p>Drag images to use them in the image generation prompt.</p>
         </div>
       </CardContent>
     </Card>
