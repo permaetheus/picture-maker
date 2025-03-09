@@ -136,43 +136,10 @@ export default function ReferencePhotoCard({
     loadPhotos()
   }, [recipientId, fallbackPhotoUrl])
 
-  // Handle photo selection logic
-  const handlePhotoClick = (photoId: string) => {
-    // If no photos are currently selected, select them all on first click
-    if (selectedPhotos.size === 0) {
-      const allPhotoIds = new Set(photos.map(photo => photo.id))
-      setSelectedPhotos(allPhotoIds)
-    } else {
-      // For subsequent clicks, toggle individual selection
-      const newSelectedPhotos = new Set(selectedPhotos)
-      if (newSelectedPhotos.has(photoId)) {
-        newSelectedPhotos.delete(photoId)
-      } else {
-        newSelectedPhotos.add(photoId)
-      }
-      setSelectedPhotos(newSelectedPhotos)
-    }
-  }
-
-  const selectAll = () => {
-    const allPhotoIds = new Set(photos.map(photo => photo.id))
-    setSelectedPhotos(allPhotoIds)
-  }
-
-  const deselectAll = () => {
-    setSelectedPhotos(new Set())
-  }
-
   // Improved drag and drop functionality
   const handleDragStart = (e: React.DragEvent, photo: Photo) => {
-    // If the dragged photo isn't selected, select it
-    if (!selectedPhotos.has(photo.id)) {
-      const newSelectedPhotos = new Set([photo.id])
-      setSelectedPhotos(newSelectedPhotos)
-    }
-
-    // Get all selected photos
-    const selectedPhotosList = photos.filter(p => selectedPhotos.has(p.id))
+    // Always use all photos for dragging
+    const selectedPhotosList = photos
 
     // This is important: set the effectAllowed property
     e.dataTransfer.effectAllowed = "copy"
@@ -274,12 +241,6 @@ export default function ReferencePhotoCard({
     <Card className="w-full">
       <CardContent className="p-4">
         <div className="mb-4 flex gap-2">
-          <Button size="sm" onClick={selectAll} variant="outline">
-            Select All
-          </Button>
-          <Button size="sm" onClick={deselectAll} variant="outline">
-            Deselect All
-          </Button>
           <span className="text-muted-foreground ml-auto text-sm">
             {photos.length} photo{photos.length !== 1 ? "s" : ""}
           </span>
@@ -287,21 +248,11 @@ export default function ReferencePhotoCard({
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {photos.map(photo => {
-            console.log(
-              "Rendering photo:",
-              photo.id,
-              photo.url.substring(0, 30) + "..."
-            )
             return (
               <div
                 key={photo.id}
-                className={`relative cursor-pointer overflow-hidden rounded-md border-2 ${
-                  selectedPhotos.has(photo.id)
-                    ? "border-blue-500"
-                    : "border-transparent"
-                }`}
-                onClick={() => handlePhotoClick(photo.id)}
-                draggable={selectedPhotos.has(photo.id)}
+                className="relative cursor-grab overflow-hidden rounded-md border-2 border-blue-500"
+                draggable={true}
                 onDragStart={e => handleDragStart(e, photo)}
               >
                 <div className="relative aspect-square">
@@ -312,11 +263,9 @@ export default function ReferencePhotoCard({
                     className="object-cover"
                   />
 
-                  {selectedPhotos.has(photo.id) && (
-                    <div className="absolute right-2 top-2 flex size-5 items-center justify-center rounded-full bg-blue-500">
-                      <Check className="size-3 text-white" />
-                    </div>
-                  )}
+                  <div className="absolute right-2 top-2 flex size-5 items-center justify-center rounded-full bg-blue-500">
+                    <Check className="size-3 text-white" />
+                  </div>
                 </div>
               </div>
             )
@@ -324,10 +273,7 @@ export default function ReferencePhotoCard({
         </div>
 
         <div className="text-muted-foreground mt-4 text-sm">
-          <p>
-            Click to select all. Click again to toggle individual selection.
-          </p>
-          <p>Drag selected images to move them.</p>
+          <p>Drag images to use them in your application.</p>
         </div>
       </CardContent>
     </Card>
