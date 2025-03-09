@@ -107,6 +107,8 @@ export default function ReferencePhotoCard({
 
         if (photosList.length > 0) {
           setPhotos(photosList)
+          // Auto-select all photos when they're loaded
+          setSelectedPhotos(new Set(photosList.map(photo => photo.id)))
         } else {
           setError("No reference photos available")
         }
@@ -114,14 +116,15 @@ export default function ReferencePhotoCard({
         console.error("Fetch error:", err)
         // If fetch fails but we have a fallback URL, use that
         if (fallbackPhotoUrl) {
-          setPhotos([
-            {
-              id: "fallback",
-              photoKey: "fallback",
-              url: fallbackPhotoUrl,
-              createdAt: new Date().toISOString()
-            }
-          ])
+          const fallbackPhoto = {
+            id: "fallback",
+            photoKey: "fallback",
+            url: fallbackPhotoUrl,
+            createdAt: new Date().toISOString()
+          }
+          setPhotos([fallbackPhoto])
+          // Auto-select the fallback photo
+          setSelectedPhotos(new Set([fallbackPhoto.id]))
         } else {
           setError("Failed to load reference photos")
         }
