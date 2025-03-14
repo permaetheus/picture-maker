@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Extract and validate the recipient ID
-    const recipientId = parseInt(context.params.id)
+    const recipientId = parseInt(params.id)
 
     if (isNaN(recipientId)) {
       return NextResponse.json(
