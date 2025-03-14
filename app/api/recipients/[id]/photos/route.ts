@@ -2,16 +2,14 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 
-type RouteParams = {
-  params: {
-    id: string
-  }
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     // Extract and validate the recipient ID
-    const recipientId = parseInt(params.id)
+    const resolvedParams = await params
+    const recipientId = parseInt(resolvedParams.id)
 
     if (isNaN(recipientId)) {
       return NextResponse.json(
