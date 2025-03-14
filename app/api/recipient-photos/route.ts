@@ -15,10 +15,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create Supabase client - using the latest pattern for Next.js App Router
+    // Create Supabase client with the correct pattern for Next.js App Router
     const supabase = createRouteHandlerClient(
-      { cookies },
-      { supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY }
+      {
+        cookies: () => cookies()
+      },
+      {
+        supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY
+      }
     )
 
     console.log(`Processing request for recipient ID: ${recipientId}`)
