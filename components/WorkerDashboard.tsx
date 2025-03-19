@@ -172,7 +172,7 @@ export default function WorkerDashboard() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <ReferencePhotoCard
-            recipientId={28}
+            recipientId={portrait.recipient_id}
             fallbackPhotoUrl={portrait.reference_photo_url}
           />
           <ImageReferenceCard

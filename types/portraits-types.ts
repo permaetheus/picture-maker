@@ -5,6 +5,7 @@ export interface Portrait {
   reference_photo_url: string
   recipient_age: number
   recipient_gender: string
+  recipient_id: number
   prompt_template_male: string
   prompt_template_female: string
   image_prompt_male: string

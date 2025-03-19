@@ -11,7 +11,9 @@ export async function getNextPortraitAction(): Promise<ActionState<any>> {
       .from("portraits")
       .select(`
         id, book_id, style_id, worker_id, status, image_key,
-        proof_status, proof_feedback, completed_at, created_at
+        proof_status, proof_feedback, completed_at, created_at,
+        recipient_id,
+        reference_photo_url
       `)
       .eq("status", "P")
       .is("worker_id", null)
