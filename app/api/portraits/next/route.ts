@@ -19,7 +19,9 @@ export async function GET(request: NextRequest) {
       proof_feedback,
       created_at,
       books:book_id (
+        recipient_id,
         recipients:recipient_id (
+          id,
           photo_key,
           age,
           gender
@@ -92,6 +94,7 @@ export async function GET(request: NextRequest) {
     negative_prompts: firstStyle?.negative_prompts,
     style_reference: firstStyle?.style_reference,
     style_weight: firstStyle?.style_weight,
+    recipient_id: firstRecipient?.id,
     recipient_age: firstRecipient?.age,
     recipient_gender: firstRecipient?.gender,
     reference_photo_url: firstRecipient?.photo_key,
@@ -121,6 +124,7 @@ export async function GET(request: NextRequest) {
       negative_prompts: firstStyle?.negative_prompts,
       style_reference: firstStyle?.style_reference,
       style_weight: firstStyle?.style_weight,
+      recipient_id: firstBook?.recipient_id,
       recipient_age: firstRecipient?.age,
       recipient_gender: firstRecipient?.gender,
       reference_photo_url: firstRecipient?.photo_key,

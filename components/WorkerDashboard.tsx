@@ -170,17 +170,15 @@ export default function WorkerDashboard() {
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          <ReferencePhotoCard
-            recipientId={portrait.recipient_id}
-            fallbackPhotoUrl={portrait.reference_photo_url}
-          />
-          <ImageReferenceCard
-            imagePromptMale={portrait.image_prompt_male}
-            imagePromptFemale={portrait.image_prompt_female}
-            recipientGender={portrait.recipient_gender}
-          />
-        </div>
+        <ReferencePhotoCard
+          recipientId={portrait.recipient_id}
+          fallbackPhotoUrl={portrait?.reference_photo_url}
+        />
+        <ImageReferenceCard
+          imagePromptMale={portrait.image_prompt_male}
+          imagePromptFemale={portrait.image_prompt_female}
+          recipientGender={portrait.recipient_gender}
+        />
 
         <StyleCard
           style_id={portrait.style_id}
