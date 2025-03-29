@@ -21,4 +21,5 @@ export interface Portrait {
   style_weight: string | null
   proof_status: string | null
   proof_feedback: string | null
+  image_key: string | null
 }

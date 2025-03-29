@@ -155,6 +155,7 @@ export default function WorkerDashboard() {
           <RejectionAlert
             isRejected={true}
             feedback={portrait.proof_feedback}
+            rejectedImageUrl={portrait.image_key}
           />
         )}
 

@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
       proof_status,
       proof_feedback,
       created_at,
+      image_key,
       books:book_id (
         recipient_id,
         recipients:recipient_id (
@@ -99,7 +100,8 @@ export async function GET(request: NextRequest) {
     recipient_gender: firstRecipient?.gender,
     reference_photo_url: firstRecipient?.photo_key,
     image_prompt_male: firstStyle?.image_prompt_male,
-    image_prompt_female: firstStyle?.image_prompt_female
+    image_prompt_female: firstStyle?.image_prompt_female,
+    image_key: data.image_key
   }
   console.log("Transformed data:", transformedData)
 
@@ -129,7 +131,8 @@ export async function GET(request: NextRequest) {
       recipient_gender: firstRecipient?.gender,
       reference_photo_url: firstRecipient?.photo_key,
       image_prompt_male: firstStyle?.image_prompt_male,
-      image_prompt_female: firstStyle?.image_prompt_female
+      image_prompt_female: firstStyle?.image_prompt_female,
+      image_key: data.image_key
     }
   })
 }
